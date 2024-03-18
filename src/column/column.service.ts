@@ -11,7 +11,9 @@ export class ColumnService {
   ) {}
 
   //컬럼 생성
-  //   async createColumn();
+  async createColumn(id: number, title: string, procedure: number) {
+    //id:boardId
+  }
 
   //컬럼 이름 수정
 

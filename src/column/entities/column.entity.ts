@@ -23,14 +23,14 @@ export class Columns {
   updatedAt: Date;
 
   @Column({ type: 'int', nullable: false })
-  priority: number;
+  procedure: number;
 
   //Boards와 Columns는 1:N
   // @ManyToOne(() => Boards, (board) => board.column)
   // board: Boards;
 
   // @Column({ type: 'int', nullable: false })
-  // boardId;
+  // boardId:number;
 
   //Column과 Cards는 1:N
   // @OneToMany(() => Cards, (card) => card.columnId)
