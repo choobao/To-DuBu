@@ -9,6 +9,8 @@ import { BoardModule } from './board/board.module';
 import { CardModule } from './card/card.module';
 import { ColumnController } from './column/column.controller';
 import { ColumnModule } from './column/column.module';
+import { Card } from './card/entitis/card.entity';
+import { User } from './user/entities/user.entity';
 import { Columns } from './column/entities/column.entity';
 import Joi from 'joi';
 
@@ -23,7 +25,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Columns],
+    entities: [User, Card, Columns],
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
