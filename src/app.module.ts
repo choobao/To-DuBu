@@ -1,4 +1,3 @@
-import Joi from 'joi';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 import { Module } from '@nestjs/common';
@@ -10,6 +9,8 @@ import { BoardModule } from './board/board.module';
 import { CardModule } from './card/card.module';
 import { ColumnController } from './column/column.controller';
 import { ColumnModule } from './column/column.module';
+import { Columns } from './column/entities/column.entity';
+import Joi from 'joi';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -22,7 +23,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [],
+    entities: [Columns],
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
