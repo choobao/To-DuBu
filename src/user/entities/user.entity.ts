@@ -11,10 +11,11 @@ import {
 
 import { Role } from '../types/userRole.type';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
+import { BoardMember } from 'src/board/entity/boardmembers.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({
-  name: 'users',
+  name: 'user',
 })
 export class User {
   @PrimaryGeneratedColumn()
@@ -40,16 +41,19 @@ export class User {
   @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ nullable: false })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ nullable: false })
   updatedAt: Date;
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date;
 
-  // @OneToMany
-  // 작성 예정
+  // 댓글
+  // @OneToMany(() => Comment, (comment) => comment.user)
+  // comment: comment[];
 
+  @OneToMany(() => BoardMember, (boardMember) => boardMember.user)
+  boardMember: BoardMember;
 }
