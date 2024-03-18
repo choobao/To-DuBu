@@ -5,7 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { Role } from '../types/role.type';
+import { Role } from '../types/boardmember-role.type';
 import { Board } from './board.entity';
 
 @Entity({ name: 'BoardMembers' })

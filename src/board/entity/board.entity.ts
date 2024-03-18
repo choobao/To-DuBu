@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { BoardMember } from './boardMembers.entity';
+import { BoardMember } from './boardmembers.entity';
 
 @Entity({ name: 'Boards' })
 export class Board {
@@ -19,7 +19,7 @@ export class Board {
   @Column('varchar', { nullable: false })
   description: string;
 
-  @Column('varchar', { default: '[0, 0, 0]' })
+  @Column('string', { length: 6, default: '000000' })
   color: string;
 
   @CreateDateColumn()
