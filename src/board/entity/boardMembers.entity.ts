@@ -5,8 +5,9 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { Role } from '../types/boardmember-role.type';
+import { BoardRole } from '../types/boardmember-role.type';
 import { Board } from './board.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity({ name: 'BoardMembers' })
 export class BoardMember {
@@ -20,9 +21,15 @@ export class BoardMember {
   boardId: number;
 
   @Column()
-  role: Role;
+  role: BoardRole;
 
-  @ManyToOne(() => Board, (board) => board.boardMembers)
+  @ManyToOne(() => Board, (board) => board.boardMembers, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'boardId' })
   boards: Board;
+
+  @ManyToOne(() => User, (user) => user.boardMembers, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  users: User;
 }
