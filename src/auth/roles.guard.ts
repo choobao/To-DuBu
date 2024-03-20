@@ -26,6 +26,7 @@ export class RolesGuard extends AuthGuard('jwt') implements CanActivate {
     }
 
     const { user } = context.switchToHttp().getRequest();
+    //롤만이 아니라 멤버를 같이 넣어주기
     return requiredRoles.some((role) => user.role === role);
   }
 }

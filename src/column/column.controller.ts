@@ -1,72 +1,93 @@
-import { Body, Controller, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ColumnService } from './column.service';
-import { createColumnDto } from './dto/create.column.dto';
+import { CreateColumnDto } from './dto/create.column.dto';
 import { UserInfo } from 'utils/userInfo.decorator';
-import { changeColumnDto } from './dto/change.column.dto';
-import { Role } from 'src/board/types/boardmember-role.type';
+import { ChangeColumnDto } from './dto/change.column.dto';
+import { User } from 'src/user/entities/user.entity';
+import { RolesGuard } from 'src/auth/roles.guard';
+import multer from 'multer';
 
-@Controller('column')
+//가드 변경 필요!!!!!!!!!!!!
+// @UseGuards(RolesGuard)
+@Controller('columns')
 export class ColumnController {
   constructor(private readonly columnService: ColumnService) {}
 
   //컬럼 생성
+  @Post('/:boardId')
   async createColumn(
     // @UserInfo() user: User,
-    @Role(Role.OWNER) //커스텀 데코레이터? BoardMembers의 롤이 admin이어야 함
+    @Param('boardId', ParseIntPipe) boardId: number,
     @Body()
-    createColumnDto: createColumnDto,
+    createColumnDto: CreateColumnDto,
     @Res() res,
   ) {
+    console.log('통과함');
     const createColumn = await this.columnService.createColumn(
-      user,
-      createColumnDto.title,
-      createColumnDto.procedure,
+      // user.id,
+      boardId,
+      createColumnDto,
     );
 
     res.status(201).json({ message: '컬럼 등록이 완료되었습니다.' });
   }
 
   //컬럼 이름 수정
-  //컬럼 생성
+  @Patch('/:columnId')
   async updateColumn(
-    // @UserInfo() user: User,
-    @Body() updateColumnDto: changeColumnDto,
+    @UserInfo() user: User,
+    @Param('columnId', ParseIntPipe) columnId: number,
+    @Body() changeColumnDto: ChangeColumnDto,
     @Res() res,
   ) {
     const updateColumn = await this.columnService.updateColumn(
-      user,
-      updateColumnDto.title,
+      user.id,
+      columnId,
+      changeColumnDto,
     );
 
     res.status(201).json({ message: '컬럼 이름 수정이 완료되었습니다.' });
   }
-  //   async updateColumn(id: number, title: string) {
-  //     const column = await this.columnRepository.findOne({
-  //       where: { id },
-  //     });
 
-  //     if (!column) {
-  //       throw new NotFoundException('해당하는 컬럼이 존재하지 않습니다.');
-  //     }
+  //컬럼 삭제
+  @Delete('/:columnId')
+  async deleteColumn(
+    @UserInfo() user: User,
+    @Param('columnId', ParseIntPipe) columnId: number,
+    @Res() res,
+  ) {
+    const deleteColumn = await this.columnService.deleteColumn(
+      user.id,
+      columnId,
+    );
 
-  //     const updateColumn = await this.columnRepository.update(
-  //       { id: column.id },
-  //       { title },
-  //     );
-  //   }
+    res.status(201).json({ message: '컬럼 삭제가 완료되었습니다.' });
+  }
 
-  //   //컬럼 삭제
-  //   async deleteColumn(id: number) {
-  //     const column = await this.columnRepository.findOne({
-  //       where: { id },
-  //     });
+  //컬럼 순서 이동
+  @Post('/:columnId/change')
+  async changePriority(
+    @UserInfo() user: User,
+    @Param('columnId', ParseIntPipe) columnId: number,
+    @Body() procedure: number,
+    @Res() res,
+  ) {
+    const changePriority = await this.columnService.changeColumnPriority(
+      columnId,
+      procedure,
+    );
 
-  //     if (!column) {
-  //       throw new NotFoundException('해당하는 컬럼이 존재하지 않습니다.');
-  //     }
-
-  //     const updateColumn = await this.columnRepository.delete({ id: column.id });
-  //   }
-
-  //   //컬럼 순서 이동
+    res.status(201).json({ message: '컬럼 순서변경이 완료되었습니다.' });
+  }
 }

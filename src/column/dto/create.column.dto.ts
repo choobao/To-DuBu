@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class createColumnDto {
+export class CreateColumnDto {
   @IsString()
   @IsNotEmpty({ message: '컬럼 이름을 입력해주세요.' })
   title: string;

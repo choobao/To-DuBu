@@ -1,4 +1,5 @@
 import { Board } from 'src/board/entity/board.entity';
+import { Card } from 'src/card/entitis/card.entity';
 import {
   Column,
   CreateDateColumn,
@@ -15,7 +16,7 @@ export class Columns {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'string', nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   title: string;
 
   @CreateDateColumn()

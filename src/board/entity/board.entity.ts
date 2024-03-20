@@ -20,7 +20,7 @@ export class Board {
   @Column('varchar', { nullable: false })
   description: string;
 
-  @Column('string', { length: 6, default: '000000' })
+  @Column('varchar', { length: 6, default: '000000' })
   color: string;
 
   @CreateDateColumn()
