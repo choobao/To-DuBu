@@ -32,8 +32,10 @@ export class Board {
   @OneToMany(() => BoardMember, (member) => member.boards, {
     onDelete: 'NO ACTION',
   })
-  boardMembers: BoardMember;
+  boardMembers: BoardMember[];
 
-  @OneToMany(() => Columns, (column) => column.board, { onDelete: 'NO ACTION' })
-  columns: Columns;
+  @OneToMany(() => Columns, (column) => column.boards, {
+    onDelete: 'NO ACTION',
+  })
+  columns: Columns[];
 }

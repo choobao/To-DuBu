@@ -13,6 +13,8 @@ import { Card } from './card/entitis/card.entity';
 import { User } from './user/entities/user.entity';
 import { Columns } from './column/entities/column.entity';
 import Joi from 'joi';
+import { Board } from './board/entity/board.entity';
+import { BoardMember } from './board/entity/boardmembers.entity';
 
 import { Board } from './board/entity/board.entity';
 import { BoardMember } from './board/entity/boardmembers.entity';
@@ -56,7 +58,7 @@ const typeOrmModuleOptions = {
     CardModule,
     ColumnModule,
   ],
-  controllers: [ColumnController],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}

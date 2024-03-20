@@ -1,7 +1,9 @@
+import { Board } from 'src/board/entity/board.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -23,14 +25,14 @@ export class Columns {
   updatedAt: Date;
 
   @Column({ type: 'int', nullable: false })
-  priority: number;
+  procedure: number;
 
   //Boards와 Columns는 1:N
-  // @ManyToOne(() => Boards, (board) => board.column)
-  // board: Boards;
+  @ManyToOne(() => Board, (board) => board.columns)
+  boards: Board;
 
-  // @Column({ type: 'int', nullable: false })
-  // boardId;
+  @Column({ type: 'int', nullable: false })
+  boardId: number;
 
   //Column과 Cards는 1:N
   // @OneToMany(() => Cards, (card) => card.columnId)
