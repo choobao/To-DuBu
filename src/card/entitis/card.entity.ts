@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity({
-  name: 'card',
+  name: 'cards',
 })
 export class Card {
   @PrimaryGeneratedColumn({ unsigned: true })
@@ -21,6 +21,9 @@ export class Card {
 
   @Column({ type: 'varchar', nullable: false })
   description: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  image: string;
 
   @Column({ type: 'varchar', nullable: false })
   color: string;
@@ -40,8 +43,9 @@ export class Card {
   @Column()
   user: number;
 
-  @Column()
-  columnId: number;
+  // @Column()
+  // columnId: number;
+
   // TODO : 상대 테이블에 따라서 수정 요함.
   // @ManyToOne(() => BoardMember, (boardMember) => boardMember.card)
   // boardMember: BoardMember
