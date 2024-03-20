@@ -1,13 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 
+import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
 import { UserInfo } from 'utils/userInfo.decorator';
 import { User } from './entities/user.entity';
-import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Controller('user')
 export class UserController {
@@ -19,9 +19,30 @@ export class UserController {
     }
 
     @Post('login')
-    async login(@Body() loginDto: LoginDto) {
-        return await this.userService.login(loginDto);
-    }
+    async login(@Req() req, @Res({ passthrough: true }) res: Response) {
+        const user = req.user;
+        const {
+          accessToken,
+          ...accessOption
+        } = this.userService.getCookieWithJwtAccessToken(user.id);
+    
+        const {
+          refreshToken,
+          ...refreshOption
+        } = this.userService.getCookieWithJwtRefreshToken(user.id);
+    
+        await this.userService.setCurrentRefreshToken(refreshToken, user.id);
+    
+        res.cookie('Authentication', accessToken, accessOption);
+        res.cookie('Refresh', refreshToken, refreshOption);
+    
+        return user;
+      }
+
+    // @Post('login')
+    // async login(@Body() loginDto: LoginDto) {
+    //     return await this.userService.login(loginDto);
+    // }
 
     @UseGuards(AuthGuard('jwt')) // JWT 인증이 된 유저에 한해서 해당 API를 호출하게 해주는 데코레이터
     @Get('info')
