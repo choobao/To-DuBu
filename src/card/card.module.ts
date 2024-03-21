@@ -8,7 +8,7 @@ import { Columns } from 'src/column/entities/column.entity';
 import { Board } from 'src/board/entity/board.entity';
 import { BoardMember } from 'src/board/entity/boardmembers.entity';
 import { UtilsModule } from 'utils/utils.module';
-import { Card } from './entitis/card.entity';
+import { Card } from './entities/card.entity';
 
 @Module({
   imports: [
