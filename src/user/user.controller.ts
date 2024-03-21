@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 
 import { AuthGuard } from '@nestjs/passport';
@@ -18,31 +18,44 @@ export class UserController {
         return await this.userService.register(registerDto);
     }
 
-    @Post('login')
-    async login(@Req() req, @Res({ passthrough: true }) res: Response) {
-        const user = req.user;
-        const {
-          accessToken,
-          ...accessOption
-        } = this.userService.getCookieWithJwtAccessToken(user.id);
-    
-        const {
-          refreshToken,
-          ...refreshOption
-        } = this.userService.getCookieWithJwtRefreshToken(user.id);
-    
-        await this.userService.setCurrentRefreshToken(refreshToken, user.id);
-    
-        res.cookie('Authentication', accessToken, accessOption);
-        res.cookie('Refresh', refreshToken, refreshOption);
-    
-        return user;
-      }
-
-    // @Post('login')
-    // async login(@Body() loginDto: LoginDto) {
-    //     return await this.userService.login(loginDto);
+    // 노드메일러에 필요한 메일 코드
+    // @Post('email-verify')
+    // async verifyEmail(@Query() verifyEmailDto: VerifyEmailDto): Promise<string> {
+    //     const { signupVerifyToken } = verifyEmailDto;
+    //     return await this.userService.verifyEmail(signupVerifyToken);
     // }
+    
+    // @Post('login')
+    // async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+    //     const user = await this.userService.login(loginDto);
+
+    //     if (!user) {
+    //       throw new UnauthorizedException('로그인에 실패했습니다.');
+    //   }
+    //     const {
+    //         accessToken,
+    //         refreshToken,
+    //         ...cookieOptions
+    //     } = this.userService.getCookiesForUser(user.id);
+
+    //     res.cookie('Authentication', accessToken, cookieOptions);
+    //     res.cookie('Refresh', refreshToken, cookieOptions);
+
+    //     return user;
+    //   }
+
+    @Post('login')
+    async login(
+      @Body() loginDto: LoginDto,
+      @Res({ passthrough: true }) res: Response,) {
+        const token = await this.userService.login(loginDto.email, loginDto.password);
+        res.cookie('Authentication', token, {
+          domain: 'localhost',
+          path: '/',
+          httpOnly: true,
+        })
+        return token;
+    }
 
     @UseGuards(AuthGuard('jwt')) // JWT 인증이 된 유저에 한해서 해당 API를 호출하게 해주는 데코레이터
     @Get('info')
@@ -59,6 +72,7 @@ export class UserController {
 //     // ... 원하는 로직 수행 return
 //   }
 
+// 작성하다 만 회원탈퇴 로직
     // @Delete('unregister')
     // unregister(@Body() password: string) {
     //     return this.po
