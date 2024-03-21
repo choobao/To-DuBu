@@ -26,11 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (_.isNil(user)) {
       throw new NotFoundException('해당하는 사용자를 찾을 수 없습니다.');
     }
-
-    const boardInfo = await this.boardService.getBoardInfoByUserId(
-      payload.userId,
-    );
-    user['boardInfo'] = boardInfo;
+    user['boardInfo'] = await this.boardService.getBoardInfoByUserId(user.id);
 
     return user;
   }
