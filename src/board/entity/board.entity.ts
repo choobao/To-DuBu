@@ -20,19 +20,19 @@ export class Board {
   @Column('varchar', { nullable: false })
   description: string;
 
-  @Column('string', { length: 6, default: '000000' })
+  @Column('varchar', { length: 6, default: '000000' })
   color: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @OneToMany(() => BoardMember, (member) => member.boards, {
     onDelete: 'NO ACTION',
   })
-  boardMembers: BoardMember[];
+  board_member: BoardMember[];
 
   @OneToMany(() => Columns, (column) => column.boards, {
     onDelete: 'NO ACTION',

@@ -4,6 +4,7 @@ import {
   Column,
   JoinColumn,
   ManyToOne,
+  CreateDateColumn,
 } from 'typeorm';
 import { BoardRole } from '../types/boardmember-role.type';
 import { Board } from './board.entity';
@@ -15,21 +16,24 @@ export class BoardMember {
   id: number;
 
   @Column('bigint', { nullable: false })
-  userId: number;
+  user_id: number;
 
   @Column('bigint', { nullable: false })
-  boardId: number;
+  board_id: number;
 
   @Column()
   role: BoardRole;
 
-  @ManyToOne(() => Board, (board) => board.boardMembers, {
+  @ManyToOne(() => Board, (board) => board.board_member, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'boardId' })
+  @JoinColumn({ name: 'board_id' })
   boards: Board;
 
-  @ManyToOne(() => User, (user) => user.boardMembers, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, (user) => user.board_member, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
   users: User;
+
+  @CreateDateColumn()
+  created_at: Date;
 }
