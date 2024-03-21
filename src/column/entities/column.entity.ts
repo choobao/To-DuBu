@@ -15,7 +15,7 @@ export class Columns {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'string', nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   title: string;
 
   @CreateDateColumn()
