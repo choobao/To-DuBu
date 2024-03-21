@@ -32,8 +32,8 @@ export class Columns {
   @ManyToOne(() => Board, (board) => board.columns)
   boards: Board;
 
-  @Column('int', { name: 'boardId', nullable: false })
-  boardId: number;
+  @Column('int', { name: 'board_id', nullable: false })
+  board_id: number;
 
   //Column과 Cards는 1:N
   // @OneToMany(() => Cards, (card) => card.columnId)

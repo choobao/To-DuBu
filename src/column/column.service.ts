@@ -9,18 +9,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Board } from 'src/board/entity/board.entity';
 import { BoardMember } from 'src/board/entity/boardmembers.entity';
-import { Role } from 'src/board/types/boardmember-role.type';
+import { BoardRole } from 'src/board/types/boardmember-role.type';
 import { CreateColumnDto } from './dto/create.column.dto';
 import { ChangeProcedureDto } from './dto/change.procedure.dto';
-
-//보드에 권한이 있는지 확인ㅜㅜ
-// const isOwner = await this.boardMemberRepository.findOne({
-//   where: { userId: id, boardId: board.id },
-// });
-
-// if (isOwner.role !== Role.OWNER) {
-//   throw new UnauthorizedException('해당 보드에 권한이 없습니다.');
-// }
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ColumnService {
@@ -34,34 +26,26 @@ export class ColumnService {
   ) {}
 
   async boardList(boards: Columns[], procedure: number) {
-    //컬럼 순서 넣는 로직 작성
-    //기본적으로 우선순위 1.1,2.2,3.3을 가진 컬럼이 존재한다고 가정(보드만들때 기본생성)
-    //해당 보드의 컬럼 전부 가져와서 해당우선순위대로 정렬해서 리스트 작성
-    //사용자가 입력한 우선순위에 해당하는 (가정: 2) 리스트 배열의 0 1번째 컬럼의 우선순위 가져오기
-    //무조건 그 우선순위 사잇값이 들어가도록 해서 데이터베이스에 저장하기
     let boardList = [];
 
     for (let i = 0; i < boards.length; i++) {
       boardList.push(boards[i]);
     }
-    console.log(boardList);
+
     //boards.length보다 큰 값 입력시 오류
     if (boardList.length < procedure) {
       throw new BadRequestException('맞지않는 순서입니다.');
     }
     boardList.sort((a, b) => a.procedure - b.procedure);
 
-    console.log(boardList[0].procedure);
-    console.log(procedure);
-
     let xx: number, yy: number, decimalProcedure: number;
     const tolerance = 0.0001;
 
-    if (procedure == boardList.length) {
-      xx = boardList[boardList.length - 1].procedure;
-      decimalProcedure = xx + 123.45;
-      return decimalProcedure;
-    }
+    // if (procedure == boardList.length) {
+    //   xx = boardList[boardList.length - 1].procedure;
+    //   decimalProcedure = xx + 123.45;
+    //   return decimalProcedure;
+    // }
 
     if (procedure == 1) {
       xx = boardList[0].procedure;
@@ -71,7 +55,6 @@ export class ColumnService {
     } else if (procedure == 2) {
       xx = boardList[0].procedure;
       yy = boardList[1].procedure;
-      console.log('dd');
 
       decimalProcedure = xx + Math.random();
 
@@ -81,7 +64,9 @@ export class ColumnService {
     } else {
       xx = boardList[procedure - 2].procedure;
       yy = boardList[procedure - 1].procedure;
+
       console.log(xx, yy);
+
       decimalProcedure = xx + Math.random();
       while (decimalProcedure > yy && decimalProcedure - yy > tolerance) {
         decimalProcedure -= 0.001;
@@ -93,39 +78,43 @@ export class ColumnService {
 
   //컬럼 생성
   async createColumn(
-    // id: number,
-    boardId: number,
+    user: User,
+    board_id: number,
     createColumnDto: CreateColumnDto,
   ) {
+    const id = user.id;
     const title = createColumnDto.title;
     const procedure = createColumnDto.procedure;
 
     //보드가 존재하는지 확인
     const board = await this.boardRepository.findOne({
-      where: { id: boardId },
+      where: { id: board_id },
     });
+
+    console.log(board);
 
     if (!board) {
       throw new NotFoundException('해당하는 보드가 존재하지 않습니다.');
     }
 
     const boards = await this.columnRepository.find({
-      where: { boardId },
+      where: { board_id },
       select: ['id', 'procedure'],
     });
 
     const decimalProcedure = await this.boardList(boards, procedure);
 
-    //컬럼 생성
     const column = await this.columnRepository.save({
       title,
       procedure: decimalProcedure,
-      boardId,
+      board_id,
+      user_id: id,
     });
   }
 
   //컬럼 이름 수정
-  async updateColumn(id: number, columnId: number, changeColumnDto: any) {
+  async updateColumn(user: User, columnId: number, changeColumnDto: any) {
+    const id = user.id;
     const title = changeColumnDto.title;
 
     //컬럼 확인
@@ -137,15 +126,6 @@ export class ColumnService {
       throw new NotFoundException('해당하는 컬럼이 존재하지 않습니다.');
     }
 
-    //보드에 권한이 있는지 확인
-    // const isOwner = await this.boardMemberRepository.findOne({
-    //   where: { userId: id, boardId: column.boardId },
-    // });
-
-    // if (isOwner.role !== Role.OWNER) {
-    //   throw new UnauthorizedException('해당 보드에 권한이 없습니다.');
-    // }
-
     const updateColumn = await this.columnRepository.update(
       { id: column.id },
       { title },
@@ -153,7 +133,8 @@ export class ColumnService {
   }
 
   //컬럼 삭제
-  async deleteColumn(id: number, columnId: number) {
+  async deleteColumn(user: User, columnId: number) {
+    const id = user.id;
     //컬럼 확인
     const column = await this.columnRepository.findOne({
       where: { id: columnId },
@@ -168,10 +149,14 @@ export class ColumnService {
 
   //컬럼 순서 이동
   async changeColumnPriority(
+    user: User,
     columnId: number,
     changeProcedureDto: ChangeProcedureDto,
   ) {
+    const id = user.id;
     const procedure = changeProcedureDto.procedure;
+
+    console.log(id);
 
     //컬럼 확인
     const column = await this.columnRepository.findOne({
@@ -183,7 +168,7 @@ export class ColumnService {
     }
 
     const boards = await this.columnRepository.find({
-      where: { boardId: column.boardId },
+      where: { board_id: column.board_id },
       select: ['id', 'procedure'],
     });
 
@@ -204,9 +189,9 @@ export class ColumnService {
     );
   }
 
-  async getcolumns(boardId: number) {
+  async getcolumns(board_id: number) {
     const columns = await this.columnRepository.find({
-      where: { boardId },
+      where: { board_id },
     });
 
     if (!columns) {

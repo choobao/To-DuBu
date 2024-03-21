@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -19,85 +20,76 @@ import { User } from 'src/user/entities/user.entity';
 import { RolesGuard } from 'src/auth/roles.guard';
 import multer from 'multer';
 import { ChangeProcedureDto } from './dto/change.procedure.dto';
+import { BoardRolesGuard } from 'src/auth/boardRoles.guard';
+import { BoardRole } from 'src/board/types/boardmember-role.type';
+import { Roles } from 'src/auth/roles.decorator';
 
-//가드 변경 필요!!!!!!!!!!!!
-// @UseGuards(RolesGuard)
+@UseGuards(BoardRolesGuard)
+// @Controller('boards/:boardId/columns')
 @Controller('columns')
 export class ColumnController {
   constructor(private readonly columnService: ColumnService) {}
 
   //컬럼 생성
+  @Roles(BoardRole.OWNER)
   @Post('/:boardId')
   async createColumn(
-    // @UserInfo() user: User,
+    @UserInfo() user: User,
     @Param('boardId', ParseIntPipe) boardId: number,
     @Body()
     createColumnDto: CreateColumnDto,
-    @Res() res,
   ) {
-    console.log('통과함');
-    const createColumn = await this.columnService.createColumn(
-      // user.id,
+    return await this.columnService.createColumn(
+      user,
       boardId,
       createColumnDto,
     );
-
-    res.status(201).json({ message: '컬럼 등록이 완료되었습니다.' });
   }
 
   //컬럼 이름 수정
-  @Patch('/:columnId')
+  @Roles(BoardRole.OWNER)
+  @Patch('/:column_id')
+  @HttpCode(200)
   async updateColumn(
     @UserInfo() user: User,
-    @Param('columnId', ParseIntPipe) columnId: number,
+    @Param('column_id', ParseIntPipe) column_id: number,
     @Body() changeColumnDto: ChangeColumnDto,
-    @Res() res,
   ) {
-    const updateColumn = await this.columnService.updateColumn(
-      user.id,
-      columnId,
-      changeColumnDto,
-    );
-
-    res.status(201).json({ message: '컬럼 이름 수정이 완료되었습니다.' });
+    console.log(user);
+    await this.columnService.updateColumn(user, column_id, changeColumnDto);
   }
 
   //컬럼 삭제
+  @Roles(BoardRole.OWNER)
   @Delete('/:columnId')
+  @HttpCode(204)
   async deleteColumn(
     @UserInfo() user: User,
-    @Param('columnId', ParseIntPipe) columnId: number,
-    @Res() res,
+    @Param('columnId', ParseIntPipe) column_id: number,
   ) {
-    const deleteColumn = await this.columnService.deleteColumn(
-      user.id,
-      columnId,
-    );
-
-    res.status(201).json({ message: '컬럼 삭제가 완료되었습니다.' });
+    await this.columnService.deleteColumn(user, column_id);
   }
 
   //컬럼 순서 이동
+  @Roles(BoardRole.OWNER)
   @Patch('/:columnId/change')
+  @HttpCode(201)
   async changePriority(
     @UserInfo() user: User,
     @Param('columnId', ParseIntPipe) columnId: number,
     @Body() changeProcedureDto: ChangeProcedureDto,
-    @Res() res,
   ) {
-    const changePriority = await this.columnService.changeColumnPriority(
+    console.log(user);
+    await this.columnService.changeColumnPriority(
+      user,
       columnId,
       changeProcedureDto,
     );
-
-    res.status(201).json({ message: '컬럼 순서변경이 완료되었습니다.' });
   }
 
   //컬럼 조회
-  @Get('/boards/:boardId')
-  async getColumns(@Param('boardId', ParseIntPipe) boardId: number) {
-    const getColumn = await this.columnService.getcolumns(boardId);
-
-    return getColumn;
+  @Get('/:board_id')
+  async getColumns(@Param('board_id', ParseIntPipe) board_id: number) {
+    return await this.columnService.getcolumns(board_id);
   }
 }
