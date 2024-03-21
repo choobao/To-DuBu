@@ -15,6 +15,10 @@ import { Columns } from './column/entities/column.entity';
 import Joi from 'joi';
 import { Board } from './board/entity/board.entity';
 import { BoardMember } from './board/entity/boardmembers.entity';
+import { EmailService } from './email/email.service';
+
+import { Board } from './board/entity/board.entity';
+import { BoardMember } from './board/entity/boardmembers.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -56,6 +60,6 @@ const typeOrmModuleOptions = {
     ColumnModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [EmailService],
 })
 export class AppModule {}

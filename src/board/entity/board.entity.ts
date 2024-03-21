@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { BoardMember } from './boardmembers.entity';
-import { Columns } from 'src/column/entities/column.entity';
+import { Columns } from '../../column/entities/column.entity';
 
 @Entity({ name: 'Boards' })
 export class Board {
@@ -24,15 +24,18 @@ export class Board {
   color: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
-  @OneToMany(() => BoardMember, (member) => member.boards)
-  boardMembers: BoardMember;
+  @OneToMany(() => BoardMember, (member) => member.boards, {
+    onDelete: 'NO ACTION',
+  })
+  board_member: BoardMember[];
 
-  // id => Column 1 : N
-  @OneToMany(() => Columns, (column) => column.boards)
+  @OneToMany(() => Columns, (column) => column.boards, {
+    onDelete: 'NO ACTION',
+  })
   columns: Columns[];
 }
