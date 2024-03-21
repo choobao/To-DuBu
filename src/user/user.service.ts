@@ -23,42 +23,42 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(registerDto: RegisterDto) {
-    const existingUser = await this.findByEmail(registerDto.email);
-    if (existingUser) {
-      throw new ConflictException(
-        '이미 해당 이메일로 가입된 사용자가 있습니다.',
-      );
-    }
+  // async register(registerDto: RegisterDto) {
+  //   const existingUser = await this.findByEmail(registerDto.email);
+  //   if (existingUser) {
+  //     throw new ConflictException(
+  //       '이미 해당 이메일로 가입된 사용자가 있습니다.',
+  //     );
+  //   }
 
-    const hashedPassword = await hash(registerDto.password, 10); // 비크립트를 이용하여 비밀번호 10단계 해싱
-    await this.userRepository.save({
-      email,
-      password: hashedPassword,
-      name,
-      company,
-    });
-  }
+  //   const hashedPassword = await hash(registerDto.password, 10); // 비크립트를 이용하여 비밀번호 10단계 해싱
+  //   await this.userRepository.save({
+  //     email,
+  //     password: hashedPassword,
+  //     name,
+  //     company,
+  //   });
+  // }
 
-  async login(email: string, password: string) {
-    const user = await this.userRepository.findOne({
-      select: ['id', 'email', 'password'],
-      where: { email },
-    });
-    if (_.isNil(user)) {
-      throw new UnauthorizedException('이메일을 확인해주세요.');
-    }
+  // async login(email: string, password: string) {
+  //   const user = await this.userRepository.findOne({
+  //     select: ['id', 'email', 'password'],
+  //     where: { email },
+  //   });
+  //   if (_.isNil(user)) {
+  //     throw new UnauthorizedException('이메일을 확인해주세요.');
+  //   }
 
-    if (!(await compare(password, user.password))) {
-      throw new UnauthorizedException('비밀번호를 확인해주세요.');
-    }
+  //   if (!(await compare(password, user.password))) {
+  //     throw new UnauthorizedException('비밀번호를 확인해주세요.');
+  //   }
 
-    const payload = { email, sub: user.id }; // 토큰 페이로드에 "sub" 필드를 포함하는 것은 토큰이 발행된 엔터티에 대한 정보를 제공하여 권한 부여 결정을 용이하게 하는 웹 서비스의 일반적인 관행
-    return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '300s' }),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
-    };
-  }
+  //   const payload = { email, sub: user.id }; // 토큰 페이로드에 "sub" 필드를 포함하는 것은 토큰이 발행된 엔터티에 대한 정보를 제공하여 권한 부여 결정을 용이하게 하는 웹 서비스의 일반적인 관행
+  //   return {
+  //     access_token: this.jwtService.sign(payload, { expiresIn: '300s' }),
+  //     refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+  //   };
+  // }
 
   // // access token
   // getCookieWithJwtAccessToken(id: number) {
@@ -145,11 +145,11 @@ export class UserService {
   //   });
   // }
 
-  async findByEmail(email: string) {
-    return await this.userRepository.findOneBy({ email });
-  }
+  // async findByEmail(email: string) {
+  //   return await this.userRepository.findOneBy({ email });
+  // }
 
-  async findById(id: number) {
-    return await this.userRepository.findOneBy({ id });
-  }
+  // async findById(id: number) {
+  //   return await this.userRepository.findOneBy({ id });
+  // }
 }

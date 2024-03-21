@@ -20,10 +20,10 @@ export class Columns {
   title: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @Column({ type: 'float', nullable: false })
   procedure: number;

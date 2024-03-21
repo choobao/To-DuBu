@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateColumnDto {
   @IsString()
@@ -6,6 +6,7 @@ export class CreateColumnDto {
   title: string;
 
   @IsNumber()
+  @Min(1, { message: '1 이상을 입력해주세요.' })
   @IsNotEmpty({ message: '작업 순서를 입력해주세요.' })
   procedure: number;
 }

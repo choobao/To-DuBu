@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseIntPipe,
   Patch,
@@ -17,6 +18,7 @@ import { ChangeColumnDto } from './dto/change.column.dto';
 import { User } from 'src/user/entities/user.entity';
 import { RolesGuard } from 'src/auth/roles.guard';
 import multer from 'multer';
+import { ChangeProcedureDto } from './dto/change.procedure.dto';
 
 //가드 변경 필요!!!!!!!!!!!!
 // @UseGuards(RolesGuard)
@@ -76,18 +78,26 @@ export class ColumnController {
   }
 
   //컬럼 순서 이동
-  @Post('/:columnId/change')
+  @Patch('/:columnId/change')
   async changePriority(
     @UserInfo() user: User,
     @Param('columnId', ParseIntPipe) columnId: number,
-    @Body() procedure: number,
+    @Body() changeProcedureDto: ChangeProcedureDto,
     @Res() res,
   ) {
     const changePriority = await this.columnService.changeColumnPriority(
       columnId,
-      procedure,
+      changeProcedureDto,
     );
 
     res.status(201).json({ message: '컬럼 순서변경이 완료되었습니다.' });
+  }
+
+  //컬럼 조회
+  @Get('/boards/:boardId')
+  async getColumns(@Param('boardId', ParseIntPipe) boardId: number) {
+    const getColumn = await this.columnService.getcolumns(boardId);
+
+    return getColumn;
   }
 }
