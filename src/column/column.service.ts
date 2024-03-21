@@ -49,10 +49,35 @@ export class ColumnService {
       throw new NotFoundException('해당하는 보드가 존재하지 않습니다.');
     }
 
+    //컬럼 순서 넣는 로직 작성
+    //기본적으로 우선순위 1.1,2.2,3.3을 가진 컬럼이 존재한다고 가정(보드만들때 기본생성)
+    //해당 보드의 컬럼 전부 가져와서 해당우선순위대로 정렬해서 리스트 작성
+    //사용자가 입력한 우선순위에 해당하는 (가정: 2) 리스트 배열의 0 1번째 컬럼의 우선순위 가져오기
+    //가져와서 그 우선순위로 나누기 = 2 그걸 우선순위로 넣어준다!
+    const boardList = [];
+
+    const boards = await this.columnRepository.find({
+      where: { boardId },
+      select: ['id', 'procedure'],
+    });
+
+    for (let i = 0; i < boards.length; i++) {
+      boardList.push(boards[i]);
+    }
+    boardList.sort((a, b) => a.procedure - b.procedure);
+    console.log(boardList);
+
+    const xx = boardList[procedure - 1];
+    const yy = boardList[procedure];
+    console.log(xx, yy);
+
+    let decimalProcedure = yy.procedure / xx.procedure;
+    console.log(decimalProcedure);
+
     //컬럼 생성
     const column = await this.columnRepository.save({
       title,
-      procedure,
+      procedure: decimalProcedure,
       boardId,
     });
   }

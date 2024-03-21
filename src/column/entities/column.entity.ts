@@ -25,14 +25,14 @@ export class Columns {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'float', nullable: false })
   procedure: number;
 
   //Boards와 Columns는 1:N
   @ManyToOne(() => Board, (board) => board.columns)
   boards: Board;
 
-  @Column({ type: 'int', nullable: false })
+  @Column('int', { name: 'boardId', nullable: false })
   boardId: number;
 
   //Column과 Cards는 1:N
