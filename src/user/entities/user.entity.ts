@@ -43,13 +43,13 @@ export class User {
   role: Role;
 
   @CreateDateColumn({ nullable: false })
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn({ nullable: false })
-  updatedAt: Date;
+  updated_at: Date;
 
   @DeleteDateColumn({ nullable: true })
-  deletedAt: Date;
+  deleted_at: Date;
 
   @Column({ nullable: true }) // Refresh Token은 로그아웃시 Null 이 되기 때문에 Null값을 허용
   @Exclude() // 특정 작업을 수행할 때 해당 특정 속성을 무시하도록 ORM 프레임워크에 지시
