@@ -17,6 +17,9 @@ import { Board } from './board/entity/board.entity';
 import { BoardMember } from './board/entity/boardmembers.entity';
 import { EmailService } from './email/email.service';
 
+import { Board } from './board/entity/board.entity';
+import { BoardMember } from './board/entity/boardmembers.entity';
+
 const typeOrmModuleOptions = {
   useFactory: async (
     configService: ConfigService,

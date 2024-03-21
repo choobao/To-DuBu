@@ -4,6 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { JwtStrategy } from './jwt.startegy';
+import { UserModule } from 'src/user/user.module';
+import { BoardModule } from 'src/board/board.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { JwtStrategy } from './jwt.startegy';
       }),
       inject: [ConfigService],
     }),
+    UserModule,
+    BoardModule,
   ],
   providers: [JwtStrategy],
 })
