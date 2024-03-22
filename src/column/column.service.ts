@@ -10,6 +10,7 @@ import { Board } from 'src/board/entity/board.entity';
 import { CreateColumnDto } from './dto/create.column.dto';
 import { ChangeProcedureDto } from './dto/change.procedure.dto';
 import { User } from 'src/user/entities/user.entity';
+import { ChangeColumnDto } from './dto/change.column.dto';
 
 @Injectable()
 export class ColumnService {
@@ -102,8 +103,7 @@ export class ColumnService {
   }
 
   //컬럼 이름 수정
-  async updateColumn(user: User, columnId: number, changeColumnDto: any) {
-    const id = user.id;
+  async updateColumn(columnId: number, changeColumnDto: ChangeColumnDto) {
     const title = changeColumnDto.title;
 
     //컬럼 확인
@@ -122,8 +122,7 @@ export class ColumnService {
   }
 
   //컬럼 삭제
-  async deleteColumn(user: User, columnId: number) {
-    const id = user.id;
+  async deleteColumn(columnId: number) {
     //컬럼 확인
     const column = await this.columnRepository.findOne({
       where: { id: columnId },
@@ -138,14 +137,10 @@ export class ColumnService {
 
   //컬럼 순서 이동
   async changeColumnPriority(
-    user: User,
     columnId: number,
     changeProcedureDto: ChangeProcedureDto,
   ) {
-    const id = user.id;
     const procedure = changeProcedureDto.procedure;
-
-    console.log(id);
 
     //컬럼 확인
     const column = await this.columnRepository.findOne({

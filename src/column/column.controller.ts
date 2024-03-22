@@ -49,23 +49,18 @@ export class ColumnController {
   @Patch('/:column_id')
   @HttpCode(200)
   async updateColumn(
-    @UserInfo() user: User,
     @Param('column_id', ParseIntPipe) column_id: number,
     @Body() changeColumnDto: ChangeColumnDto,
   ) {
-    console.log(user);
-    await this.columnService.updateColumn(user, column_id, changeColumnDto);
+    await this.columnService.updateColumn(column_id, changeColumnDto);
   }
 
   //컬럼 삭제
   @Roles(BoardRole.OWNER)
   @Delete('/:column_id')
   @HttpCode(204)
-  async deleteColumn(
-    @UserInfo() user: User,
-    @Param('column_id', ParseIntPipe) column_id: number,
-  ) {
-    await this.columnService.deleteColumn(user, column_id);
+  async deleteColumn(@Param('column_id', ParseIntPipe) column_id: number) {
+    await this.columnService.deleteColumn(column_id);
   }
 
   //컬럼 순서 이동
@@ -73,13 +68,10 @@ export class ColumnController {
   @Patch('/:column_id/change')
   @HttpCode(201)
   async changePriority(
-    @UserInfo() user: User,
     @Param('column_id', ParseIntPipe) column_id: number,
     @Body() changeProcedureDto: ChangeProcedureDto,
   ) {
-    console.log(user);
     await this.columnService.changeColumnPriority(
-      user,
       column_id,
       changeProcedureDto,
     );
