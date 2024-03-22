@@ -29,8 +29,14 @@ export class CardService {
   ) {}
   // 카드 생성
     async createCard(createCardDto: CreateCardDto) {
+      const columnExists = await this.columnRepository.findOneBy({ id: createCardDto.columnId });
+
+      if (!columnExists) {
+        throw new NotFoundException('카드를 추가하려는 컬럼이 존재하지 않습니다.');
+      }
+
       let lexoRank;
-      const existingCard = await this.cardRepository.findOne({ where: {}, order: { lexo: "DESC" } })
+      const existingCard = await this.cardRepository.findOne({ where: { columns: {id: createCardDto.columnId} }, order: { lexo: "DESC" } })
       if (existingCard && existingCard.lexo) {
         lexoRank = LexoRank.parse(existingCard.lexo.toString()).genNext();
       } else {
@@ -42,7 +48,8 @@ export class CardService {
         description: createCardDto.description,
         color: createCardDto.color,
         dead_line: createCardDto.dead_line,
-        lexo: lexoRank.toString()
+        lexo: lexoRank.toString(),
+        columns: {id: createCardDto.columnId }
       });
     
       const savedCard = await this.cardRepository.save(newCard);
@@ -64,6 +71,7 @@ export class CardService {
     })
     .map((card) => ({
       data: {
+        column_id: card.columns.id,
         id: card.id,
         title: card.title,
         description: card.description,
@@ -122,6 +130,7 @@ export class CardService {
     })
     .map((card) => ({
       data: {
+        columns_id: { where: movingCard.columns.id},
         id: card.id,
         title: card.title,
         description: card.description,

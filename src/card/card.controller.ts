@@ -9,13 +9,16 @@ import {
   Post,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CardService } from './card.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateCardDto } from './dto/card.create.dto';
 import { UpdateCardDto } from './dto/card.update.dto';
+import { BoardRolesGuard } from 'src/auth/boardRoles.guard';
 
+@UseGuards(BoardRolesGuard)
 @Controller('card')
 export class CardController {
   constructor(private readonly cardService: CardService) {}

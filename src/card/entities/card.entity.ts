@@ -35,7 +35,7 @@ export class Card {
   
   @Column({ type: 'varchar', nullable: false })
   lexo: LexoRank
-// TODO : 상대 테이블에 따라서 수정 요함.
+
   @ManyToOne(() => BoardMember, (boardMember) => boardMember.card, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user'})
   boardMember: BoardMember
