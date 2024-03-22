@@ -1,9 +1,10 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as uuid from 'uuid';
+// import * as uuid from 'uuid';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +16,7 @@ import { User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UnregisterDto } from './dto/unregister.dto';
 
 @Injectable()
 export class UserService {
@@ -42,21 +44,21 @@ export class UserService {
     });
   }
 
-  // 기존 토큰 반환만 하는 로그인 로직
-  async login(email: string, password: string) {
+  async login(loginDto: LoginDto) {
     const user = await this.userRepository.findOne({
-      select: ['id', 'email', 'password'],
-      where: { email },
+      select: ['id', 'email', 'password'], // 유저 엔터티에서 id, email, password 필드만 선택
+      where: { email: loginDto.email }, // userRepository에서 제공된 이메일로 사용자 찾음
     });
     if (_.isNil(user)) {
       throw new UnauthorizedException('이메일을 확인해주세요.');
     }
 
-    if (!(await compare(password, user.password))) {
+    if (!(await compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('비밀번호를 확인해주세요.');
     }
 
-    const payload = { email, sub: user.id }; // 토큰 페이로드에 "sub" 필드를 포함하는 것은 토큰이 발행된 엔터티에 대한 정보를 제공하여 권한 부여 결정을 용이하게 하는 웹 서비스의 일반적인 관행
+    // 사용자가 일치하면 jwt 토큰 페이로드 구성
+    const payload = { email: user.email, sub: user.id }; // 토큰 페이로드에 "sub" 필드를 포함하는 것은 토큰이 발행된 엔터티에 대한 정보를 제공하여 권한 부여 결정을 용이하게 하는 웹 서비스의 일반적인 관행
     return {
       access_token: this.jwtService.sign(payload, { expiresIn: '300s' }),
       refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
@@ -117,8 +119,8 @@ export class UserService {
         path: '/',
         httpOnly: true,
         maxAge: 0,
-      }
-    }
+      },
+    };
   }
 
   // DB에 발급받은 Refresh Token을 암호화 하여 저장
@@ -148,13 +150,41 @@ export class UserService {
     });
   }
 
+  // 회원 탈퇴
+  async unregister(
+    unregisterDto: UnregisterDto,
+    userId: number,
+  ): Promise<boolean> {
+    // 해당 작업이 완료될 때까지 기다리고 완료된 후에 불리언 값을 반환
+    const user = await this.findById(userId);
+    console.log(unregisterDto.password, user);
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    console.log(1);
+    const isPasswordValid = await compare(
+      unregisterDto.password,
+      user.password,
+    );
+    console.log(1);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
+    }
+    console.log(1);
+    const result = await this.userRepository.softDelete(userId);
+    console.log(1);
+    return result.affected ? true : false; // result.affected는 삭제된 레코드의 수를 나타내며, 이 값이 0보다 크면(true) 삭제 작업이 성공적으로 수행되었음을 의미
+  }
+
   async findByEmail(email: string) {
     return await this.userRepository.findOneBy({ email });
   }
 
-  async findById(id: number) {
-    return await this.userRepository.findOneBy({ id });
+  async findById(id: number): Promise<User> {
+    return await this.userRepository.findOne({
+      where: { id },
+      select: ['password'],
+    });
   }
-
-  // async unregister
 }
