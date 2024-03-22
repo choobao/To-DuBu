@@ -14,6 +14,7 @@ import {
 import { CardService } from './card.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateCardDto } from './dto/card.create.dto';
+import { UpdateCardDto } from './dto/card.update.dto';
 
 @Controller('card')
 export class CardController {
@@ -35,6 +36,14 @@ export class CardController {
     return await this.cardService.findAll()
   }
 
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch('modify/:cardId')
+  async modifyCard(@Param('cardId', ParseIntPipe) cardId: number, @Body() updateCardDto: UpdateCardDto,
+  @UploadedFile() file: Express.Multer.File) {
+    const updatedDate = await this.cardService.modifyCard(cardId, updateCardDto, file )
+    return updatedDate
+  }
+
   @Delete('delete/:cardId')
   async deleteCard(@Param('cardId') cardId: number ) {
     await this.cardService.deleteCard(cardId)
@@ -53,4 +62,4 @@ export class CardController {
   //   );
 
   //   return insertMultForm;
-  // }
+  // // }

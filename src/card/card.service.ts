@@ -5,17 +5,27 @@ import { BoardMember } from 'src/board/entity/boardmembers.entity';
 import { Columns } from 'src/column/entities/column.entity';
 import { Card } from './entities/card.entity';
 import { UtilsService } from 'utils/utils.service';
-import { AwsService } from 'src/aws/aws.service';
+import { AwsService } from '../aws/aws.service'
 import { NotFoundError } from 'rxjs';
 import { Repository } from 'typeorm';
 import { CreateCardDto } from './dto/card.create.dto';
 import { LexoRank } from 'lexorank';
+import { UpdateCardDto } from './dto/card.update.dto';
+import { update } from 'lodash';
 
 @Injectable()
 export class CardService {
   constructor(
     @InjectRepository(Card)
-    private cardRepository: Repository<Card>
+    private cardRepository: Repository<Card>,
+    @InjectRepository(Columns)
+    private readonly columnRepository: Repository<Columns>,
+    @InjectRepository(Board)
+    private readonly boardRepository: Repository<Board>,
+    @InjectRepository(BoardMember)
+    private readonly boardMemberRepository: Repository<BoardMember>,
+    private readonly utilsService: UtilsService,
+    private readonly awsService: AwsService,
   ) {}
   // 카드 생성
     async createCard(createCardDto: CreateCardDto) {
@@ -62,7 +72,7 @@ export class CardService {
         lexo: card.lexo.toString(),
       },
     }));
-    // TODO 확인 위해 넣어놓은 것. 알림문구로 수정예정
+
     return sortedCards
   }
 
@@ -124,6 +134,43 @@ export class CardService {
   return sortedCards;
   }
 
+  // 카드 수정
+  async modifyCard(cardId: number, updateCardDto: UpdateCardDto, file: Express.Multer.File) {
+  const card = await this.cardRepository.findOne({
+    where: { id: cardId },
+  });
+
+  if (!card) {
+    throw new NotFoundException('해당하는 카드가 존재하지 않습니다.');
+  }
+
+  //이미 입력된 이미지가 있다면 S3에서 기존 이미지 삭제
+  if (card.image_url !== null) {
+    await this.awsService.DeleteUploadToS3(card.image_url);
+  }
+
+  //S3에 이미지 업로드, url return
+  const imageName = this.utilsService.getUUID();
+  const ext = file.originalname.split('.').pop();
+
+  const imageUrl = await this.awsService.imageUploadToS3(
+    `${imageName}.${ext}`,
+    file,
+    ext,
+  );
+
+  //DB에 저장
+  const uploadCard = await this.cardRepository.save({
+    title: updateCardDto.title,
+    description: updateCardDto.description,
+    color: updateCardDto.color,
+    dead_line: updateCardDto.dead_line,
+    image_url: `${imageName}.${ext}`,
+  });
+
+  return uploadCard;
+  }
+
   // 카드 삭제
   async deleteCard(cardId: number) {
     const card = await this.cardRepository.findOne({
@@ -135,6 +182,13 @@ export class CardService {
     }
 
     const deleteCard = await this.cardRepository.delete({id: card.id})
+  }
+
+  //카드 상세 조회
+  async getCard(cardId: number) {
+    const card = await this.cardRepository.findOne({
+      where: { id: cardId },
+    });
   }
 }
 
@@ -185,4 +239,68 @@ export class CardService {
 //   );
 
 //   return { imageUrl };
+// }
+
+// import { Injectable, NotFoundException } from '@nestjs/common';
+// import { InjectRepository } from '@nestjs/typeorm';
+// import { Board } from 'src/board/entity/board.entity';
+// import { BoardMember } from 'src/board/entity/boardmembers.entity';
+// import { Columns } from 'src/column/entities/column.entity';
+// import { Repository } from 'typeorm';
+// import { Card } from './entitis/card.entity';
+// import { UtilsService } from 'utils/utils.service';
+// // import { AwsService } from 'src/aws/aws.service';
+// import { NotFoundError } from 'rxjs';
+
+// @Injectable()
+// export class CardService {
+//   constructor(
+//     @InjectRepository(Columns)
+//     private readonly columnRepository: Repository<Columns>,
+//     @InjectRepository(Board)
+//     private readonly boardRepository: Repository<Board>,
+//     @InjectRepository(BoardMember)
+//     private readonly boardMemberRepository: Repository<BoardMember>,
+//     @InjectRepository(Card)
+//     private readonly cardRepository: Repository<Card>,
+//     private readonly utilsService: UtilsService,
+//     // private readonly awsService: AwsService,
+//   ) {}
+
+//   //코드 합친 후 카드생성api에 이미지 입력코드 꼭 넣기!!!!!
+
+//   //카드 이미지 입력(수정)
+//   async insertMutiformForCard(cardId: number, file: Express.Multer.File) {
+//     const card = await this.cardRepository.findOne({
+//       where: { id: cardId },
+//     });
+
+//     if (!card) {
+//       throw new NotFoundException('해당하는 카드가 존재하지 않습니다.');
+//     }
+
+//     //이미 입력된 이미지가 있다면 S3에서 기존 이미지 삭제
+//     if (card.image !== null) {
+//       // await this.awsService.DeleteUploadToS3(card.image);
+//     }
+
+//     //S3에 이미지 업로드, url return
+//     const imageName = this.utilsService.getUUID();
+//     const ext = file.originalname.split('.').pop();
+
+//     // const imageUrl = await this.awsService.imageUploadToS3(
+//     //   `${imageName}.${ext}`,
+//     //   file,
+//     //   ext,
+//     // );
+
+//     //DB에 저장
+//     const uploadCardDB = await this.cardRepository.update(
+//       { id: card.id },
+//       { image: `${imageName}.${ext}` },
+//     );
+
+//     // return { imageUrl };
+//   }
+
 // }

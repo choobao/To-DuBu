@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer"
-import { IsNotEmpty, IsOptional, IsString } from "class-validator"
+import { IsDateString, IsNotEmpty, IsOptional, IsString } from "class-validator"
 
 export class CreateCardDto {
   @IsNotEmpty()
@@ -15,8 +15,7 @@ export class CreateCardDto {
   color: string
 
   @IsNotEmpty()
-  @IsString()
-  // @Transform(({ value }) => new Date(value), { toClassOnly: true })
+  @IsDateString()
   dead_line: string
 
   // @IsOptional()

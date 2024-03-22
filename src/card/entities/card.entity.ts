@@ -1,6 +1,6 @@
 import { BoardMember } from "src/board/entity/boardmembers.entity";
 import { Columns } from "src/column/entities/column.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { LexoRank } from "lexorank";
 
 
@@ -24,8 +24,8 @@ export class Card {
   @Column({ type: 'varchar', nullable: false })
   dead_line: Date
 
-  // @Column( {type: 'varchar', nullable: true })
-  // image_url: 'string'
+  @Column( {type: 'varchar', nullable: true })
+  image_url: string
   
   @CreateDateColumn({ update: false })
   created_at: Date
@@ -36,11 +36,13 @@ export class Card {
   @Column({ type: 'varchar', nullable: false })
   lexo: LexoRank
 // TODO : 상대 테이블에 따라서 수정 요함.
-  // @ManyToOne(() => BoardMember, (boardMember) => boardMember.card)
-  // user: BoardMember
+  @ManyToOne(() => BoardMember, (boardMember) => boardMember.card, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user'})
+  boardMember: BoardMember
 
-  // @ManyToOne(() => Columns, (columns) => columns.card)
-  // columnId: Columns
+  @ManyToOne(() => Columns, (columns) => columns.card, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'columns'})
+  columns: Columns
 
   // @OneToMany(() => CheckLists, (checkLists) => checkLists.card)
   // checkLists: CheckLists

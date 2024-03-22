@@ -54,6 +54,6 @@ export class User {
   // @OneToMany(() => Comment, (comment) => comment.user)
   // comment: comment[];
 
-  // @OneToMany(() => BoardMember, (boardMember) => boardMember.user)
-  // boardMember: BoardMember;
+  @OneToMany(() => BoardMember, (boardMember) => boardMember.users)
+  board_member: BoardMember;
 }

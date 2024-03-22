@@ -1,4 +1,4 @@
-export enum Role {
+export enum BoardRole {
   OWNER,
   WORKER,
   INVITED,
