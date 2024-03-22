@@ -2,14 +2,11 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Columns } from './entities/column.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Board } from 'src/board/entity/board.entity';
-import { BoardMember } from 'src/board/entity/boardmembers.entity';
-import { BoardRole } from 'src/board/types/boardmember-role.type';
 import { CreateColumnDto } from './dto/create.column.dto';
 import { ChangeProcedureDto } from './dto/change.procedure.dto';
 import { User } from 'src/user/entities/user.entity';
@@ -21,8 +18,6 @@ export class ColumnService {
     private readonly columnRepository: Repository<Columns>,
     @InjectRepository(Board)
     private readonly boardRepository: Repository<Board>,
-    @InjectRepository(BoardMember)
-    private readonly boardMemberRepository: Repository<BoardMember>,
   ) {}
 
   async boardList(boards: Columns[], procedure: number) {
@@ -40,12 +35,6 @@ export class ColumnService {
 
     let xx: number, yy: number, decimalProcedure: number;
     const tolerance = 0.0001;
-
-    // if (procedure == boardList.length) {
-    //   xx = boardList[boardList.length - 1].procedure;
-    //   decimalProcedure = xx + 123.45;
-    //   return decimalProcedure;
-    // }
 
     if (procedure == 1) {
       xx = boardList[0].procedure;
