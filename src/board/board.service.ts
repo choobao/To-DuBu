@@ -42,6 +42,7 @@ export class BoardService {
       const newBoard = await queryRunner.manager
         .getRepository(Board)
         .save(createBoardDto);
+
       await queryRunner.manager.getRepository(BoardMember).save({
         board_id: newBoard.id,
         user_id: userId,
@@ -62,16 +63,17 @@ export class BoardService {
   }
 
   async findBoard(boardId: number) {
-    return this.boardRepo.findOneBy({ id: boardId });
+    const board = await this.boardRepo.findOneBy({ id: boardId });
+    if (_.isNil(board))
+      throw new NotFoundException('존재하지 않는 보드입니다.');
+
+    return this.boardRepo.findOneBy({ id: board.id });
   }
 
   async updateBoard(boardId: number, updateBoardDto: UpdateBoardDto) {
-    const updatedBoard = await this.boardRepo.update(
-      { id: +boardId },
-      updateBoardDto,
-    );
+    await this.boardRepo.update({ id: boardId }, updateBoardDto);
 
-    return updatedBoard;
+    return await this.boardRepo.findOneBy({ id: boardId });
   }
 
   async deleteBoard(boardId: number, userId: number, password: string) {
@@ -85,10 +87,6 @@ export class BoardService {
     }
 
     await this.boardRepo.delete({ id: +boardId });
-  }
-
-  async getBoardInfoByUserId(userId: number) {
-    return await this.boardMemberRepo.findBy({ user_id: userId });
   }
 
   async inviteMember(boardId: number, email: string) {
