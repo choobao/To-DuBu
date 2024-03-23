@@ -19,6 +19,7 @@ import { BoardMember } from './entity/boardmembers.entity';
 import { User } from 'src/user/entities/user.entity';
 import { MailService } from 'src/email/mail.service';
 import { JwtService } from '@nestjs/jwt';
+import { Columns } from 'src/column/entities/column.entity';
 
 @Injectable()
 export class BoardService {
@@ -42,6 +43,17 @@ export class BoardService {
       const newBoard = await queryRunner.manager
         .getRepository(Board)
         .save(createBoardDto);
+
+      await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into(Columns)
+        .values([
+          { title: '준비중', procedure: 100.1, board_id: newBoard.id },
+          { title: '진행중', procedure: 300.1, board_id: newBoard.id },
+          { title: '완료', procedure: 500.1, board_id: newBoard.id },
+        ])
+        .execute();
 
       await queryRunner.manager.getRepository(BoardMember).save({
         board_id: newBoard.id,
