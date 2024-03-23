@@ -19,6 +19,7 @@ import { BoardMember } from './entity/boardmembers.entity';
 import { User } from 'src/user/entities/user.entity';
 import { MailService } from 'src/email/mail.service';
 import { JwtService } from '@nestjs/jwt';
+import { Columns } from 'src/column/entities/column.entity';
 
 @Injectable()
 export class BoardService {
@@ -42,6 +43,18 @@ export class BoardService {
       const newBoard = await queryRunner.manager
         .getRepository(Board)
         .save(createBoardDto);
+
+      await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into(Columns)
+        .values([
+          { title: '준비중', procedure: 100.1, board_id: newBoard.id },
+          { title: '진행중', procedure: 300.1, board_id: newBoard.id },
+          { title: '완료', procedure: 500.1, board_id: newBoard.id },
+        ])
+        .execute();
+
       await queryRunner.manager.getRepository(BoardMember).save({
         board_id: newBoard.id,
         user_id: userId,
@@ -62,16 +75,17 @@ export class BoardService {
   }
 
   async findBoard(boardId: number) {
-    return this.boardRepo.findOneBy({ id: boardId });
+    const board = await this.boardRepo.findOneBy({ id: boardId });
+    if (_.isNil(board))
+      throw new NotFoundException('존재하지 않는 보드입니다.');
+
+    return this.boardRepo.findOneBy({ id: board.id });
   }
 
   async updateBoard(boardId: number, updateBoardDto: UpdateBoardDto) {
-    const updatedBoard = await this.boardRepo.update(
-      { id: +boardId },
-      updateBoardDto,
-    );
+    await this.boardRepo.update({ id: boardId }, updateBoardDto);
 
-    return updatedBoard;
+    return await this.boardRepo.findOneBy({ id: boardId });
   }
 
   async deleteBoard(boardId: number, userId: number, password: string) {
@@ -85,10 +99,6 @@ export class BoardService {
     }
 
     await this.boardRepo.delete({ id: +boardId });
-  }
-
-  async getBoardInfoByUserId(userId: number) {
-    return await this.boardMemberRepo.findBy({ user_id: userId });
   }
 
   async inviteMember(boardId: number, email: string) {

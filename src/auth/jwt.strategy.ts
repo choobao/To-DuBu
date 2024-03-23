@@ -4,15 +4,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import _ from 'lodash';
-import { UserService } from 'src/user/user.service';
-import { BoardService } from 'src/board/board.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
+import { BoardMember } from 'src/board/entity/boardmembers.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly configService: ConfigService,
-    private readonly userService: UserService,
-    private readonly boardService: BoardService,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(BoardMember)
+    private readonly boardMemberRepo: Repository<BoardMember>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -22,11 +25,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.userService.findByEmail(payload.email);
+    const user = await this.userRepo.findOneBy({ email: payload.email });
     if (_.isNil(user)) {
       throw new NotFoundException('해당하는 사용자를 찾을 수 없습니다.');
     }
-    user['boardInfo'] = await this.boardService.getBoardInfoByUserId(user.id);
+    user['boardInfo'] = await this.boardMemberRepo.findBy({ user_id: user.id });
 
     return user;
   }
