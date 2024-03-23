@@ -19,7 +19,7 @@ import { UpdateCardDto } from './dto/card.update.dto';
 import { BoardRolesGuard } from 'src/auth/boardRoles.guard';
 
 @UseGuards(BoardRolesGuard)
-@Controller('card')
+@Controller('boards/:boardId/card')
 export class CardController {
   constructor(private readonly cardService: CardService) {}
 
@@ -40,14 +40,14 @@ export class CardController {
   }
 
   @UseInterceptors(FileInterceptor('file'))
-  @Patch('modify/:cardId')
+  @Patch(':cardId')
   async modifyCard(@Param('cardId', ParseIntPipe) cardId: number, @Body() updateCardDto: UpdateCardDto,
   @UploadedFile() file: Express.Multer.File) {
     const updatedDate = await this.cardService.modifyCard(cardId, updateCardDto, file )
     return updatedDate
   }
 
-  @Delete('delete/:cardId')
+  @Delete(':cardId')
   async deleteCard(@Param('cardId') cardId: number ) {
     await this.cardService.deleteCard(cardId)
   }

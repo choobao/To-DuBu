@@ -1,19 +1,19 @@
 import { IsNotEmpty, IsOptional, IsString } from "class-validator"
 
 export class UpdateCardDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   title: string
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   description: string
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   color: string
 
-  @IsNotEmpty()
+  @IsOptional()
   dead_line: string
 
   @IsOptional()

@@ -14,13 +14,13 @@ import {
 } from '@nestjs/common';
 import { ColumnService } from './column.service';
 import { CreateColumnDto } from './dto/create.column.dto';
-import { UserInfo } from 'utils/userInfo.decorator';
 import { ChangeColumnDto } from './dto/change.column.dto';
 import { User } from 'src/user/entities/user.entity';
 import { ChangeProcedureDto } from './dto/change.procedure.dto';
 import { BoardRolesGuard } from 'src/auth/boardRoles.guard';
 import { BoardRole } from 'src/board/types/boardmember-role.type';
 import { Roles } from 'src/auth/roles.decorator';
+import { UserInfo } from '../../utils/userInfo.decorator';
 
 @UseGuards(BoardRolesGuard)
 @Controller('boards/:boardId/columns')

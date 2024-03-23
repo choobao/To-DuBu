@@ -2,6 +2,7 @@ import { BoardMember } from "src/board/entity/boardmembers.entity";
 import { Columns } from "src/column/entities/column.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { LexoRank } from "lexorank";
+import { Comments } from "src/comment/entities/comment.entity";
 
 
 @Entity({
@@ -44,6 +45,9 @@ export class Card {
   @JoinColumn({ name: 'columns'})
   columns: Columns
 
+  @OneToMany(() => Comments, (comments) => comments.card)
+  comments: Comments[];
+  
   // @OneToMany(() => CheckLists, (checkLists) => checkLists.card)
   // checkLists: CheckLists
 }

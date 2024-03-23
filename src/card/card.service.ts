@@ -58,7 +58,8 @@ export class CardService {
 
   // 카드 목록 보기
   async findAll() {
-    const cards = await this.cardRepository.find()
+    //TODO relation 수정예정.
+    const cards = await this.cardRepository.find({ relations: ['columns'] })
 
     const sortedCards = cards
     .sort((a, b) => {
@@ -71,7 +72,7 @@ export class CardService {
     })
     .map((card) => ({
       data: {
-        column_id: card.columns.id,
+        // column_id: card.columns.id,
         id: card.id,
         title: card.title,
         description: card.description,
@@ -170,11 +171,13 @@ export class CardService {
 
   //DB에 저장
   const uploadCard = await this.cardRepository.save({
+    id: cardId,
     title: updateCardDto.title,
     description: updateCardDto.description,
     color: updateCardDto.color,
     dead_line: updateCardDto.dead_line,
     image_url: `${imageName}.${ext}`,
+    lexo: card.lexo
   });
 
   return uploadCard;

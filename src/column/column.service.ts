@@ -81,8 +81,6 @@ export class ColumnService {
       where: { id: board_id },
     });
 
-    console.log(board);
-
     if (!board) {
       throw new NotFoundException('해당하는 보드가 존재하지 않습니다.');
     }
