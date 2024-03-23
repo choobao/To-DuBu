@@ -7,7 +7,6 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BoardModule } from './board/board.module';
 import { CardModule } from './card/card.module';
-import { ColumnController } from './column/column.controller';
 import { ColumnModule } from './column/column.module';
 import { Card } from './card/entitis/card.entity';
 import { User } from './user/entities/user.entity';
@@ -15,10 +14,8 @@ import { Columns } from './column/entities/column.entity';
 import Joi from 'joi';
 import { Board } from './board/entity/board.entity';
 import { BoardMember } from './board/entity/boardmembers.entity';
-import { EmailService } from './email/email.service';
-
-import { Board } from './board/entity/board.entity';
-import { BoardMember } from './board/entity/boardmembers.entity';
+import { CommentModule } from './comment/comment.module';
+import { Comments } from './comment/entities/comment.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -31,7 +28,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, Card, Columns, Board, BoardMember],
+    entities: [User, Card, Columns, Board, BoardMember, Comments],
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
@@ -50,6 +47,11 @@ const typeOrmModuleOptions = {
         DB_PORT: Joi.number().required(),
         DB_NAME: Joi.string().required(),
         DB_SYNC: Joi.boolean().required(),
+        HOST: Joi.string().required(),
+        PORT: Joi.number().required(),
+        MAILER_ID: Joi.string().required(),
+        MAILER_PASSWORD: Joi.string().required(),
+        MAILER_TOKEN_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
@@ -58,8 +60,9 @@ const typeOrmModuleOptions = {
     BoardModule,
     CardModule,
     ColumnModule,
+    CommentModule,
   ],
   controllers: [],
-  providers: [EmailService],
+  providers: [],
 })
 export class AppModule {}

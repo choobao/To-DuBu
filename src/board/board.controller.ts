@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Param,
   ParseIntPipe,
@@ -20,8 +21,9 @@ import { UserInfo } from 'utils/userInfo.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { UserPasswordDto } from 'src/user/dto/user-password.dto';
+import { UserEmailDto } from 'src/user/dto/user-email.dto';
 
-@UseGuards(BoardRolesGuard) // ! user role의 admin도 허용되도록 수정
+@UseGuards(BoardRolesGuard)
 @Controller('boards')
 export class BoardController {
   constructor(private boardService: BoardService) {}
@@ -32,6 +34,16 @@ export class BoardController {
     @Body() createBoardDto: CreateBoardDto,
   ) {
     return await this.boardService.createBoard(id, createBoardDto);
+  }
+
+  @Get()
+  async findAllBoards() {
+    return await this.boardService.findAllBoards();
+  }
+
+  @Get('/:boardId')
+  async findBoard(@Param('boardId', ParseIntPipe) boardId: number) {
+    return await this.boardService.findBoard(boardId);
   }
 
   @Patch('/:boardId')
@@ -51,7 +63,20 @@ export class BoardController {
     @UserInfo() user: User,
     @Body() passwordDto: UserPasswordDto,
   ) {
-    console.log(user);
     this.boardService.deleteBoard(boardId, user.id, passwordDto.password);
+  }
+
+  @Post('/invite/:boardId')
+  @Roles(BoardRole.OWNER, BoardRole.WORKER)
+  async inviteBoardMember(
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Body() emailDto: UserEmailDto,
+  ) {
+    return await this.boardService.inviteMember(boardId, emailDto.email);
+  }
+
+  @Post('/accept/:token')
+  acceptInvitation(@Param('token') token: string) {
+    this.boardService.acceptInvitation(token);
   }
 }
