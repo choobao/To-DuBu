@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Param,
   ParseIntPipe,
@@ -35,6 +36,16 @@ export class BoardController {
     return await this.boardService.createBoard(id, createBoardDto);
   }
 
+  @Get()
+  async findAllBoards() {
+    return await this.boardService.findAllBoards();
+  }
+
+  @Get('/:boardId')
+  async findBoard(@Param('boardId', ParseIntPipe) boardId: number) {
+    return await this.boardService.findBoard(boardId);
+  }
+
   @Patch('/:boardId')
   @Roles(BoardRole.OWNER)
   async updateBoard(
@@ -58,10 +69,10 @@ export class BoardController {
   @Post('/invite/:boardId')
   @Roles(BoardRole.OWNER, BoardRole.WORKER)
   async inviteBoardMember(
-    @Param('boardId') boardId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
     @Body() emailDto: UserEmailDto,
   ) {
-    return await this.boardService.inviteMember(+boardId, emailDto.email);
+    return await this.boardService.inviteMember(boardId, emailDto.email);
   }
 
   @Post('/accept/:token')

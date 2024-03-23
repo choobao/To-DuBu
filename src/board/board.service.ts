@@ -57,6 +57,14 @@ export class BoardService {
     }
   }
 
+  async findAllBoards() {
+    return this.boardRepo.find({ select: ['id', 'title', 'description'] });
+  }
+
+  async findBoard(boardId: number) {
+    return this.boardRepo.findOneBy({ id: boardId });
+  }
+
   async updateBoard(boardId: number, updateBoardDto: UpdateBoardDto) {
     const updatedBoard = await this.boardRepo.update(
       { id: +boardId },
