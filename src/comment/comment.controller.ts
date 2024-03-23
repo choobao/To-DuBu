@@ -1,4 +1,4 @@
-import { Body, Controller, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { BoardRolesGuard } from 'src/auth/boardRoles.guard';
 import { Roles } from 'src/auth/roles.decorator';
@@ -13,10 +13,11 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   //댓글 작성
-  @Roles(BoardRole.OWNER || BoardRole.OWNER)
+  @Roles(BoardRole.OWNER, BoardRole.WORKER)
+  @Post('/:cardId')
   async createComments(
     @UserInfo() user: User,
-    @Param('/:cardId/comment') cardId: number,
+    @Param('cardId') cardId: number,
     @Body() createCommentDto: CreateCommentDto,
   ) {
     return await this.commentService.createComment(
