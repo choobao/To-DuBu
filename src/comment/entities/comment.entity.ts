@@ -29,8 +29,14 @@ export class Comments {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @Column('int', { name: 'user_id', nullable: false })
+  user_id: number;
+
   //cards와 comments는 1:N
   @ManyToOne(() => Card, (card) => card.comments)
   @JoinColumn({ name: 'card_id' })
   card: Card;
+
+  @Column('int', { name: 'card_id', nullable: false, unsigned: true })
+  card_id: number;
 }

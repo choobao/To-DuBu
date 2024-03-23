@@ -24,7 +24,6 @@ import { UserInfo } from '../../utils/userInfo.decorator';
 
 @UseGuards(BoardRolesGuard)
 @Controller('boards/:boardId/columns')
-@Controller('columns')
 export class ColumnController {
   constructor(private readonly columnService: ColumnService) {}
 
@@ -57,29 +56,27 @@ export class ColumnController {
 
   //컬럼 삭제
   @Roles(BoardRole.OWNER)
-  @Delete('/:column_id')
+  @Delete('/:columnId')
   @HttpCode(204)
-  async deleteColumn(@Param('column_id', ParseIntPipe) column_id: number) {
-    await this.columnService.deleteColumn(column_id);
+  async deleteColumn(@Param('columnId', ParseIntPipe) columnId: number) {
+    await this.columnService.deleteColumn(columnId);
   }
 
   //컬럼 순서 이동
   @Roles(BoardRole.OWNER)
-  @Patch('/:column_id/change')
+  @Patch('/:columnId/change')
   @HttpCode(201)
   async changePriority(
-    @Param('column_id', ParseIntPipe) column_id: number,
+    @Param('columnId', ParseIntPipe) columnId: number,
     @Body() changeProcedureDto: ChangeProcedureDto,
   ) {
-    await this.columnService.changeColumnPriority(
-      column_id,
-      changeProcedureDto,
-    );
+    await this.columnService.changeColumnPriority(columnId, changeProcedureDto);
   }
 
   //컬럼 조회
   @Get()
-  async getColumns(@Param('boardid', ParseIntPipe) boardid: number) {
-    return await this.columnService.getcolumns(boardid);
+  async getColumns(@Param('boardId', ParseIntPipe) boardId: number) {
+    console.log(boardId);
+    return await this.columnService.getcolumns(boardId);
   }
 }
