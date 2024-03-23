@@ -21,8 +21,11 @@ export class BoardMember {
   @Column('bigint', { nullable: false })
   board_id: number;
 
-  @Column()
+  @Column('enum', { enum: BoardRole })
   role: BoardRole;
+
+  @CreateDateColumn()
+  created_at: Date;
 
   @ManyToOne(() => Board, (board) => board.board_member, {
     onDelete: 'CASCADE',
@@ -33,7 +36,4 @@ export class BoardMember {
   @ManyToOne(() => User, (user) => user.board_member, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   users: User;
-
-  @CreateDateColumn()
-  created_at: Date;
 }

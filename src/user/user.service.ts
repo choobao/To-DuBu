@@ -27,13 +27,13 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
 
-  // async register(registerDto: RegisterDto) {
-  //   const existingUser = await this.findByEmail(registerDto.email);
-  //   if (existingUser) {
-  //     throw new ConflictException(
-  //       '이미 해당 이메일로 가입된 사용자가 있습니다.',
-  //     );
-  //   }
+  async register(registerDto: RegisterDto) {
+    const existingUser = await this.findByEmail(registerDto.email);
+    if (existingUser) {
+      throw new ConflictException(
+        '이미 해당 이메일로 가입된 사용자가 있습니다.',
+      );
+    }
 
     const hashedPassword = await hash(registerDto.password, 10); // 비크립트를 이용하여 비밀번호 10단계 해싱
     await this.userRepository.save({
@@ -177,9 +177,9 @@ export class UserService {
     return result.affected ? true : false; // result.affected는 삭제된 레코드의 수를 나타내며, 이 값이 0보다 크면(true) 삭제 작업이 성공적으로 수행되었음을 의미
   }
 
-  // async findByEmail(email: string) {
-  //   return await this.userRepository.findOneBy({ email });
-  // }
+  async findByEmail(email: string) {
+    return await this.userRepository.findOneBy({ email });
+  }
 
   async findById(id: number): Promise<User> {
     return await this.userRepository.findOne({
