@@ -158,8 +158,6 @@ export class UserService {
   // 유저 정보 수정
   async updateInfo(id: number, data: Partial<User>): Promise<User> {
     // Partial<User>: User의 모든 속성을 포함하지만 각 속성은 선택 사항인 유형
-    console.log('Received data:', data);
-
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
@@ -167,8 +165,6 @@ export class UserService {
 
     await this.userRepository.update(id, data);
     const updatedUser = await this.userRepository.findOne({ where: { id } });
-
-    console.log(updatedUser);
 
     return updatedUser;
   }
