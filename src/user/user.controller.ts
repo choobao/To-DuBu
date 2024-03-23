@@ -19,7 +19,6 @@ import { LoginDto } from './dto/login.dto';
 import { UserInfo } from 'utils/userInfo.decorator';
 import { User } from './entities/user.entity';
 import { UnregisterDto } from './dto/unregister.dto';
-import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Controller('user')
 export class UserController {
@@ -51,10 +50,29 @@ export class UserController {
     return token;
   }
 
-  @UseGuards(AuthGuard('jwt')) // JWT 인증이 된 유저에 한해서 해당 API를 호출하게 해주는 데코레이터 -> 이거 확인해보기
-  @Get('info')
+  @UseGuards(AuthGuard('jwt')) // JWT 인증이 된 유저에 한해서 해당 API를 호출하게 해주는 데코레이터
+  @Get('getinfo')
   getInfo(@UserInfo() user: User) {
-    return { id: user.id, email: user.email, name: user.name, role: user.role };
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      company: user.company,
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('updateinfo')
+  async updateInfo(@UserInfo() user: User, @Body() updateData: Partial<User>) {
+    const updatedUser = await this.userService.updateInfo(user.id, updateData);
+    return {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      role: updatedUser.role,
+      company: updatedUser.company,
+    };
   }
 
   @Patch('unregister') // softDelete라서 @Delete X

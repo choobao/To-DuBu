@@ -150,6 +150,25 @@ export class UserService {
     });
   }
 
+  // 유저 정보 조회
+  async getInfo(id: number): Promise<User> {
+    return await this.userRepository.findOne({ where: { id } });
+  }
+
+  // 유저 정보 수정
+  async updateInfo(id: number, data: Partial<User>): Promise<User> {
+    // Partial<User>: User의 모든 속성을 포함하지만 각 속성은 선택 사항인 유형
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    await this.userRepository.update(id, data);
+    const updatedUser = await this.userRepository.findOne({ where: { id } });
+
+    return updatedUser;
+  }
+
   // 회원 탈퇴
   async unregister(
     unregisterDto: UnregisterDto,
@@ -162,18 +181,16 @@ export class UserService {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 
-    console.log(1);
     const isPasswordValid = await compare(
       unregisterDto.password,
       user.password,
     );
-    console.log(1);
     if (!isPasswordValid) {
       throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
     }
-    console.log(1);
+
     const result = await this.userRepository.softDelete(userId);
-    console.log(1);
+
     return result.affected ? true : false; // result.affected는 삭제된 레코드의 수를 나타내며, 이 값이 0보다 크면(true) 삭제 작업이 성공적으로 수행되었음을 의미
   }
 
