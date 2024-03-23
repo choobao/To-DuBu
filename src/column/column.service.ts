@@ -37,6 +37,12 @@ export class ColumnService {
     let xx: number, yy: number, decimalProcedure: number;
     const tolerance = 0.0001;
 
+    if (procedure == boardList.length) {
+      xx = boardList[boardList.length - 1].procedure;
+      decimalProcedure = xx + 123.45;
+      return decimalProcedure;
+    }
+
     if (procedure == 1) {
       xx = boardList[0].procedure;
 
