@@ -14,6 +14,8 @@ import { Columns } from './column/entities/column.entity';
 import Joi from 'joi';
 import { Board } from './board/entity/board.entity';
 import { BoardMember } from './board/entity/boardmembers.entity';
+import { CommentModule } from './comment/comment.module';
+import { Comments } from './comment/entities/comment.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -26,7 +28,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, Card, Columns, Board, BoardMember],
+    entities: [User, Card, Columns, Board, BoardMember, Comments],
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
@@ -49,6 +51,7 @@ const typeOrmModuleOptions = {
         PORT: Joi.number().required(),
         MAILER_ID: Joi.string().required(),
         MAILER_PASSWORD: Joi.string().required(),
+        MAILER_TOKEN_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
@@ -57,6 +60,7 @@ const typeOrmModuleOptions = {
     BoardModule,
     CardModule,
     ColumnModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [],

@@ -59,4 +59,11 @@ export class CardService {
 
     // return { imageUrl };
   }
+
+  //카드 상세 조회
+  async getCard(cardId: number) {
+    const card = await this.cardRepository.findOne({
+      where: { id: cardId },
+    });
+  }
 }
