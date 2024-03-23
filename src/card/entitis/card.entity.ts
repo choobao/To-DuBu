@@ -1,4 +1,5 @@
 import { BoardMember } from 'src/board/entity/boardmembers.entity';
+import { Comments } from 'src/comment/entities/comment.entity';
 import {
   Column,
   CreateDateColumn,
@@ -48,8 +49,11 @@ export class Card {
 
   // TODO : 상대 테이블에 따라서 수정 요함.
   // @ManyToOne(() => BoardMember, (boardMember) => boardMember.card)
-  // boardMember: BoardMember
+  // boardMember: BoardMember;
 
   // @OneToMany(() => CheckLists, (checkLists) => checkLists.card)
-  // checkLists: CheckLists
+  // checkLists: CheckLists;
+
+  @OneToMany(() => Comments, (comments) => comments.card)
+  comments: Comments[];
 }

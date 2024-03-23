@@ -8,11 +8,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
 import { Role } from '../types/userRole.type';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
 import { BoardMember } from 'src/board/entity/boardmembers.entity';
 import { Exclude } from 'class-transformer';
+import { Comments } from 'src/comment/entities/comment.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({
@@ -56,9 +56,9 @@ export class User {
   currentHashedRefreshToken?: string;
 
   // 댓글
-  // @OneToMany(() => Comment, (comment) => comment.user)
-  // comment: comment[];
+  @OneToMany(() => Comments, (comments) => comments.user)
+  comments: Comments[];
 
-  // @OneToMany(() => BoardMember, (boardMember) => boardMember.user)
-  // boardMember: BoardMember;
+  @OneToMany(() => BoardMember, (board_member) => board_member.users)
+  board_member: BoardMember;
 }
