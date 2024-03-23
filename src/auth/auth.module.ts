@@ -2,12 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { UserModule } from 'src/user/user.module';
 import { JwtStrategy } from './jwt.startegy';
-import { BoardModule } from 'src/board/board.module';
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/user/entities/user.entity';
+import { BoardMember } from 'src/board/entity/boardmembers.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([User, BoardMember]),
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -21,8 +24,6 @@ import { BoardModule } from 'src/board/board.module';
         },
       }),
     }),
-    UserModule,
-    BoardModule,
   ],
   providers: [JwtStrategy],
 })
