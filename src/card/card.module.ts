@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CardService } from './card.service';
 import { CardController } from './card.controller';
-// import { AwsModule } from 'src/aws/aws.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Columns } from 'src/column/entities/column.entity';
