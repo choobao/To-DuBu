@@ -59,7 +59,7 @@ export class MailService {
   }
 
   private invitationBody(token: string): { subject: string; html: string } {
-    const url = `http://${this.config.get('HOST')}:${this.config.get('PORT')}/boards?invitationToken=${token}`;
+    const url = `http://${this.config.get('HOST')}:${this.config.get('PORT')}/boards/accept/${token}`;
     return {
       subject: '보드 초대 메일',
       html: `
