@@ -3,9 +3,9 @@ import { CommentService } from './comment.service';
 import { BoardRolesGuard } from 'src/auth/boardRoles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { BoardRole } from 'src/board/types/boardmember-role.type';
-import { UserInfo } from 'utils/userInfo.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { CreateCommentDto } from './dto/create.comment.dto';
+import { UserInfo } from '../../utils/userInfo.decorator';
 
 @UseGuards(BoardRolesGuard)
 @Controller('boards/:boardId/cards')

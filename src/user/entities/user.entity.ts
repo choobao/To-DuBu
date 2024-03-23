@@ -12,6 +12,7 @@ import {
 import { Role } from '../types/userRole.type';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
 import { BoardMember } from 'src/board/entity/boardmembers.entity';
+import { Comments } from 'src/comment/entities/comment.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({
@@ -42,18 +43,17 @@ export class User {
   role: Role;
 
   @CreateDateColumn({ nullable: false })
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn({ nullable: false })
-  updatedAt: Date;
+  updated_at: Date;
 
   @DeleteDateColumn({ nullable: true })
-  deletedAt: Date;
+  deleted_at: Date;
 
-  // 댓글
-  // @OneToMany(() => Comment, (comment) => comment.user)
-  // comment: comment[];
+  @OneToMany(() => BoardMember, (board_member) => board_member.users)
+  board_member: BoardMember;
 
-  // @OneToMany(() => BoardMember, (boardMember) => boardMember.user)
-  // boardMember: BoardMember;
+  @OneToMany(() => Comments, (comments) => comments.user)
+  comments: Comments[];
 }

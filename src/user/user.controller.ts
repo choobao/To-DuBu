@@ -18,10 +18,10 @@ export class UserController {
   //     return await this.userService.register(registerDto);
   // }
 
-  // // @Post('login')
-  // // async login(@Body() loginDto: LoginDto) {
-  // //     return await this.userService.login(loginDto);
-  // // }
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    return await this.userService.login(loginDto);
+  }
 
   // @UseGuards(AuthGuard('jwt')) // JWT 인증이 된 유저에 한해서 해당 API를 호출하게 해주는 데코레이터
   // @Get('info')
