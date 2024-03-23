@@ -9,7 +9,7 @@ import {
 import { BoardMember } from './boardmembers.entity';
 import { Columns } from '../../column/entities/column.entity';
 
-@Entity({ name: 'Boards' })
+@Entity({ name: 'boards' })
 export class Board {
   @PrimaryGeneratedColumn()
   id: number;

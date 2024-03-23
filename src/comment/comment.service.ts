@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Card } from 'src/card/entitis/card.entity';
+import { Card } from 'src/card/entities/card.entity';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create.comment.dto';
 import { Comments } from './entities/comment.entity';
