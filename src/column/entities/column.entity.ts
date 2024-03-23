@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -36,6 +37,6 @@ export class Columns {
   board_id: number;
 
   //Column과 Cards는 1:N
-  // @OneToMany(() => Cards, (card) => card.columnId)
-  // card: Cards[];
+  // @OneToMany(() => Card, (card) => card.columnId)
+  // card: Card[];
 }

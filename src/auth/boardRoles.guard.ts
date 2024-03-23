@@ -6,6 +6,7 @@ import {
   ExecutionContext,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
@@ -38,7 +39,7 @@ export class BoardRolesGuard extends AuthGuard('jwt') implements CanActivate {
       (info) => info.board_id === +boardId,
     )[0];
 
-    if (_.isNil(userInfo)) throw new NotFoundException();
+    if (_.isNil(userInfo)) throw new UnauthorizedException();
     return requiredRoles.some((role) => +role === userInfo.role);
   }
 }

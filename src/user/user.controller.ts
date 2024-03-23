@@ -43,7 +43,7 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const token = await this.userService.login(loginDto);
-    res.cookie('Authentication', token, {
+    res.cookie('Authorization', token, {
       domain: 'localhost',
       path: '/',
       httpOnly: true,
@@ -63,7 +63,6 @@ export class UserController {
     @Body() unregisterDto: UnregisterDto,
     @UserInfo() user: User,
   ) {
-    console.log(1);
     await this.userService.unregister(unregisterDto, user.id);
   }
 }
