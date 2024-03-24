@@ -1,6 +1,11 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
-
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Request as RequestType } from 'express';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import _ from 'lodash';
@@ -18,10 +23,24 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly boardMemberRepo: Repository<BoardMember>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractJWT]),
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET_KEY'),
     });
+  }
+
+  private static extractJWT(req: RequestType): string | null {
+    const { Authorization } = req.cookies;
+    if (Authorization) {
+      const [tokenType, token] = Authorization.split(' ');
+      if (tokenType !== 'Bearer')
+        throw new BadRequestException('토큰 타입이 일치하지 않습니다.');
+      if (!token) {
+        throw new UnauthorizedException('토큰이 유효하지 않습니다.');
+      }
+      return token;
+    }
+    return null;
   }
 
   async validate(payload: any) {

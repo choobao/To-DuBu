@@ -42,11 +42,7 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const token = await this.userService.login(loginDto);
-    res.cookie('Authorization', token, {
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-    });
+    res.cookie('Authorization', `Bearer ${token.access_token}`);
     return token;
   }
 
