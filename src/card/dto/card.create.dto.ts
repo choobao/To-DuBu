@@ -20,7 +20,7 @@ export class CreateCardDto {
 
   @IsNotEmpty()
   @IsNumber()
-  columnId: number;
+  column_id: number;
 
   // @IsOptional()
   // @IsString()

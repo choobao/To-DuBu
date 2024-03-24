@@ -37,12 +37,18 @@ export class Card {
   @Column({ type: 'varchar', nullable: false })
   lexo: LexoRank
 
-  @ManyToOne(() => BoardMember, (boardMember) => boardMember.card, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user'})
+  @Column({  type: 'int', nullable: false })
+  user: number
+
+  @Column({  type: 'int', nullable: false })
+  columns_id: number
+
+  @ManyToOne(() => BoardMember, (boardMember) => boardMember.card)
+  @JoinColumn({ name: 'boardMember'})
   boardMember: BoardMember
 
   @ManyToOne(() => Columns, (columns) => columns.card, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'columns'})
+  @JoinColumn({ name: 'columns_id'})
   columns: Columns
 
   @OneToMany(() => Comments, (comments) => comments.card)

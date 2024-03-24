@@ -21,6 +21,7 @@ import { User } from 'src/user/entities/user.entity';
 import { BoardRolesGuard } from 'src/auth/boardRoles.guard';
 import { BoardRole } from 'src/board/types/boardmember-role.type';
 import { Roles } from 'src/auth/roles.decorator';
+import { ModifyWorkerDto } from './dto/card.modify.dto';
 
 @UseGuards(BoardRolesGuard)
 @Controller('boards/:boardId/card')
@@ -30,9 +31,10 @@ export class CardController {
   @Roles(BoardRole.OWNER, BoardRole.WORKER)
   @Post()
   async createCard(
+    @UserInfo() user: User,
     @Body() createCardDto: CreateCardDto
     ) {
-    return await this.cardService.createCard(createCardDto)
+    return await this.cardService.createCard(user, createCardDto)
   }
 
   @Roles(BoardRole.OWNER, BoardRole.WORKER)
@@ -55,7 +57,7 @@ export class CardController {
   @Patch('/:cardId')
   async modifyCard(
     @UserInfo() user: User,
-    @Param('cardId', ParseIntPipe)cardId: number,
+    @Param('cardId', ParseIntPipe) cardId: number,
     @Body() updateCardDto: UpdateCardDto,
   @UploadedFile() file: Express.Multer.File
   ) {
@@ -70,5 +72,30 @@ export class CardController {
     @UserInfo() user: User,
     ) {
     await this.cardService.deleteCard(user, cardId)
+    return {message: '삭제가 완료되었습니다.'}
+  }
+
+  @Roles(BoardRole.OWNER)
+  @Patch('modify/:cardId')
+  async modifyWorker(
+    @Param('cardId') cardId: number,
+    @Body() modifyWorkerDto: ModifyWorkerDto
+  ) {
+    await this.cardService.modifyWorker(cardId, modifyWorkerDto)
+    return {message: '작업자 변경이 완료되었습니다.'}
   }
 }
+  // //카드 이미지 삽입(수정)
+  // @UseInterceptors(FileInterceptor('file'))
+  // @Patch('/:cardId/image')
+  // async insertMultiForm(
+  //   @Param('cardId', ParseIntPipe) cardId: number,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ) {
+  //   const insertMultForm = await this.cardService.insertMutiformForCard(
+  //     cardId,
+  //     file,
+  //   );
+
+  //   return insertMultForm;
+  // // }
