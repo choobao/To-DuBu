@@ -17,7 +17,6 @@ import { ConfigService } from '@nestjs/config';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UnregisterDto } from './dto/unregister.dto';
-// import { IsDeletedEmailValidator } from './decorator/is-email-not-soft-deleted.decorator';
 
 @Injectable()
 export class UserService {
@@ -30,9 +29,6 @@ export class UserService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    // const existingUser = await this.findByEmail(registerDto.email, {
-    //   withDeleted: true,
-    // });
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
       withDeleted: true,
@@ -208,10 +204,6 @@ export class UserService {
     return result.affected ? true : false; // result.affected는 삭제된 레코드의 수를 나타내며, 이 값이 0보다 크면(true) 삭제 작업이 성공적으로 수행되었음을 의미
   }
 
-  // async findByEmail(email: string) {
-  //   return await this.userRepository.findOneBy({ email });
-  // }
-
   async findByEmail(email: string, options?: { withDeleted?: boolean }) {
     // 검색 결과에 탈퇴한 사용자를 포함할지
     if (options && options.withDeleted) {
@@ -223,22 +215,6 @@ export class UserService {
       where: { email, deleted_at: null },
     });
   }
-
-  // async findByEmail(
-  //   email: string,
-  //   options?: FindOneOptions<User>,
-  // ): Promise<User | undefined> {
-  //   if (options && options.withDeleted) {
-  //     return await this.userRepository.findOne({
-  //       where: { email },
-  //       withDeleted: true,
-  //       ...options,
-  //     });
-  //   }
-  //   return await this.userRepository.findOne({
-  //     where: { email, deleted_at: null },
-  //   });
-  // }
 
   async findById(id: number): Promise<User> {
     return await this.userRepository.findOne({

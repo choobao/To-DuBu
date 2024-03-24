@@ -6,7 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
-// import { IsDeletedEmailValidator } from './decorator/is-email-not-soft-deleted.decorator';
 
 @Module({
   imports: [
