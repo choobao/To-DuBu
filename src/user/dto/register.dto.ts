@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class RegisterDto {
-  @IsEmail()
+  @IsEmail({}, { message: '이메일 형식을 확인해주세요.' })
   @IsNotEmpty({ message: '이메일을 입력해주세요.' })
   email: string;
 

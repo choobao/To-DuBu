@@ -7,7 +7,7 @@ import {
 // import * as uuid from 'uuid';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
 import _ from 'lodash';
@@ -25,14 +25,24 @@ export class UserService {
     private userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    // private readonly isDeletedEmailValidator: IsDeletedEmailValidator,
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.findByEmail(registerDto.email);
+    const existingUser = await this.userRepository.findOne({
+      where: { email: registerDto.email },
+      withDeleted: true,
+    });
+    console.log(existingUser);
     if (existingUser) {
-      throw new ConflictException(
-        '이미 해당 이메일로 가입된 사용자가 있습니다.',
-      );
+      if (existingUser.deleted_at !== null) {
+        // 기존에 등록된 사용자이면서 deleted_at이 null이 아닌(=탈퇴한) 사용자인지 확인
+        throw new ConflictException('탈퇴 처리된 이메일입니다.'); // 탈퇴 처리된 메일로 가입을 시도하는 경우
+      } else {
+        throw new ConflictException( // 중복 가입을 시도하는 경우
+          '이미 해당 이메일로 가입된 사용자가 있습니다.',
+        );
+      }
     }
 
     const hashedPassword = await hash(registerDto.password, 10); // 비크립트를 이용하여 비밀번호 10단계 해싱
@@ -194,8 +204,16 @@ export class UserService {
     return result.affected ? true : false; // result.affected는 삭제된 레코드의 수를 나타내며, 이 값이 0보다 크면(true) 삭제 작업이 성공적으로 수행되었음을 의미
   }
 
-  async findByEmail(email: string) {
-    return await this.userRepository.findOneBy({ email });
+  async findByEmail(email: string, options?: { withDeleted?: boolean }) {
+    // 검색 결과에 탈퇴한 사용자를 포함할지
+    if (options && options.withDeleted) {
+      // options 매개변수가 제공되었는지, withDeleted 속성이 true로 설정되었는지 확인
+      return await this.userRepository.findOne({ where: { email } });
+    }
+    // options 매개변수가 제공되지 않거나 withDeleted 속성이 false(또는 제공되지 않음)인 경우 deleted_at 열이 null(=탈퇴하지 않은)인 사용자만 검색하여 탈퇴한 사용자를 검색 결과에서 제외
+    return await this.userRepository.findOne({
+      where: { email, deleted_at: null },
+    });
   }
 
   async findById(id: number): Promise<User> {
