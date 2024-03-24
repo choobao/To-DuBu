@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
+// import { IsDeletedEmailValidator } from './decorator/is-email-not-soft-deleted.decorator';
 
 @Module({
   imports: [
@@ -18,7 +19,10 @@ import { UserService } from './user.service';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [
+    UserService,
+    // IsDeletedEmailValidator
+  ],
   exports: [UserService],
 })
 export class UserModule {}
