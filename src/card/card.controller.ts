@@ -84,18 +84,12 @@ export class CardController {
     await this.cardService.modifyWorker(cardId, modifyWorkerDto);
     return { message: '작업자 변경이 완료되었습니다.' };
   }
-}
-// //카드 이미지 삽입(수정)
-// @UseInterceptors(FileInterceptor('file'))
-// @Patch('/:cardId/image')
-// async insertMultiForm(
-//   @Param('cardId', ParseIntPipe) cardId: number,
-//   @UploadedFile() file: Express.Multer.File,
-// ) {
-//   const insertMultForm = await this.cardService.insertMutiformForCard(
-//     cardId,
-//     file,
-//   );
 
-//   return insertMultForm;
-// // }
+  @Roles(BoardRole.OWNER, BoardRole.WORKER)
+  @Get('/:cardId')
+  async getCard(
+    @Param('cardId') cardId: number,
+  ) {
+    return await this.cardService.findCard(cardId)
+  }
+}
