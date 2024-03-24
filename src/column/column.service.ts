@@ -29,7 +29,7 @@ export class ColumnService {
     }
 
     //boards.length보다 큰 값 입력시 오류
-    if (boardList.length < procedure) {
+    if (boardList.length + 2 < procedure) {
       throw new BadRequestException('맞지않는 순서입니다.');
     }
     boardList.sort((a, b) => a.procedure - b.procedure);
@@ -37,7 +37,7 @@ export class ColumnService {
     let xx: number, yy: number, decimalProcedure: number;
     const tolerance = 0.0001;
 
-    if (procedure == boardList.length) {
+    if (procedure == boardList.length + 1) {
       xx = boardList[boardList.length - 1].procedure;
       decimalProcedure = xx + 123.45;
       return decimalProcedure;

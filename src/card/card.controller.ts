@@ -32,24 +32,22 @@ export class CardController {
   @Post()
   async createCard(
     @UserInfo() user: User,
-    @Body() createCardDto: CreateCardDto
-    ) {
-    return await this.cardService.createCard(user, createCardDto)
+    @Body() createCardDto: CreateCardDto,
+  ) {
+    return await this.cardService.createCard(user, createCardDto);
   }
 
   @Roles(BoardRole.OWNER, BoardRole.WORKER)
   @Get()
   async getCards() {
-    return await this.cardService.findAll()
+    return await this.cardService.findAll();
   }
 
   @Roles(BoardRole.OWNER, BoardRole.WORKER)
   @Post('move')
-  async moveCard(
-    @Body() body: {cardId: number, whereId: number}
-    ) {
-    await this.cardService.moveCard(body.cardId, body.whereId)
-    return await this.cardService.findAll()
+  async moveCard(@Body() body: { cardId: number; whereId: number }) {
+    await this.cardService.moveCard(body.cardId, body.whereId);
+    return await this.cardService.findAll();
   }
 
   @Roles(BoardRole.OWNER, BoardRole.WORKER)
@@ -59,43 +57,45 @@ export class CardController {
     @UserInfo() user: User,
     @Param('cardId', ParseIntPipe) cardId: number,
     @Body() updateCardDto: UpdateCardDto,
-  @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    const updatedDate = await this.cardService.modifyCard(user, cardId, updateCardDto, file )
-    return updatedDate
+    const updatedDate = await this.cardService.modifyCard(
+      user,
+      cardId,
+      updateCardDto,
+      file,
+    );
+    return updatedDate;
   }
 
   @Roles(BoardRole.OWNER, BoardRole.WORKER)
   @Delete('/:cardId')
-  async deleteCard(
-    @Param('cardId') cardId: number,
-    @UserInfo() user: User,
-    ) {
-    await this.cardService.deleteCard(user, cardId)
-    return {message: '삭제가 완료되었습니다.'}
+  async deleteCard(@Param('cardId') cardId: number, @UserInfo() user: User) {
+    await this.cardService.deleteCard(user, cardId);
+    return { message: '삭제가 완료되었습니다.' };
   }
 
-  @Roles(BoardRole.OWNER)
+  @Roles(BoardRole.OWNER, BoardRole.WORKER)
   @Patch('modify/:cardId')
   async modifyWorker(
     @Param('cardId') cardId: number,
-    @Body() modifyWorkerDto: ModifyWorkerDto
+    @Body() modifyWorkerDto: ModifyWorkerDto,
   ) {
-    await this.cardService.modifyWorker(cardId, modifyWorkerDto)
-    return {message: '작업자 변경이 완료되었습니다.'}
+    await this.cardService.modifyWorker(cardId, modifyWorkerDto);
+    return { message: '작업자 변경이 완료되었습니다.' };
   }
 }
-  // //카드 이미지 삽입(수정)
-  // @UseInterceptors(FileInterceptor('file'))
-  // @Patch('/:cardId/image')
-  // async insertMultiForm(
-  //   @Param('cardId', ParseIntPipe) cardId: number,
-  //   @UploadedFile() file: Express.Multer.File,
-  // ) {
-  //   const insertMultForm = await this.cardService.insertMutiformForCard(
-  //     cardId,
-  //     file,
-  //   );
+// //카드 이미지 삽입(수정)
+// @UseInterceptors(FileInterceptor('file'))
+// @Patch('/:cardId/image')
+// async insertMultiForm(
+//   @Param('cardId', ParseIntPipe) cardId: number,
+//   @UploadedFile() file: Express.Multer.File,
+// ) {
+//   const insertMultForm = await this.cardService.insertMutiformForCard(
+//     cardId,
+//     file,
+//   );
 
-  //   return insertMultForm;
-  // // }
+//   return insertMultForm;
+// // }
