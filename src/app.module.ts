@@ -8,7 +8,7 @@ import { UserModule } from './user/user.module';
 import { BoardModule } from './board/board.module';
 import { CardModule } from './card/card.module';
 import { ColumnModule } from './column/column.module';
-import { Card } from './card/entitis/card.entity';
+import { Card } from './card/entities/card.entity';
 import { User } from './user/entities/user.entity';
 import { Columns } from './column/entities/column.entity';
 import Joi from 'joi';

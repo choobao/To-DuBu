@@ -22,6 +22,5 @@ import { ConfigService } from '@nestjs/config';
   ],
   controllers: [BoardController],
   providers: [BoardService],
-  exports: [BoardService],
 })
 export class BoardModule {}

@@ -1,5 +1,5 @@
 import { Board } from 'src/board/entity/board.entity';
-import { Card } from 'src/card/entitis/card.entity';
+import { Card } from 'src/card/entities/card.entity';
 import {
   Column,
   CreateDateColumn,
@@ -37,6 +37,6 @@ export class Columns {
   board_id: number;
 
   //Column과 Cards는 1:N
-  // @OneToMany(() => Card, (card) => card.columnId)
-  // card: Card[];
+  @OneToMany(() => Card, (card) => card.columns)
+  card: Card[];
 }

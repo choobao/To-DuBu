@@ -19,10 +19,7 @@ import { UserService } from './user.service';
     }),
   ],
   controllers: [UserController],
-  providers: [
-    UserService,
-    // IsDeletedEmailValidator
-  ],
+  providers: [UserService],
   exports: [UserService],
 })
 export class UserModule {}

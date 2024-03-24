@@ -5,12 +5,14 @@ import {
   JoinColumn,
   ManyToOne,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { BoardRole } from '../types/boardmember-role.type';
 import { Board } from './board.entity';
 import { User } from 'src/user/entities/user.entity';
+import { Card } from 'src/card/entities/card.entity';
 
-@Entity({ name: 'BoardMembers' })
+@Entity({ name: 'boardmember' })
 export class BoardMember {
   @PrimaryGeneratedColumn()
   id: number;
@@ -36,4 +38,7 @@ export class BoardMember {
   @ManyToOne(() => User, (user) => user.board_member, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   users: User;
+
+  @OneToMany(() => Card, (card) => card.boardMember)
+  card: Card[];
 }
