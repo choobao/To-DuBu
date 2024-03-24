@@ -32,16 +32,12 @@ export class CommentService {
       throw new NotFoundException('해당하는 카드가 존재하지 않습니다.');
     }
 
-    console.log(userId, cardId);
-
     //댓글 등록하기
     const comment = await this.commentRepository.save({
       content,
       user_id: userId,
       card_id: cardId,
     });
-
-    console.log(comment.user_id);
 
     return comment;
   }

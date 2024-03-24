@@ -76,7 +76,6 @@ export class ColumnController {
   //컬럼 조회
   @Get()
   async getColumns(@Param('boardId', ParseIntPipe) boardId: number) {
-    console.log(boardId);
     return await this.columnService.getcolumns(boardId);
   }
 }

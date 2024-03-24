@@ -33,7 +33,7 @@ export class UserService {
       where: { email: registerDto.email },
       withDeleted: true,
     });
-    console.log(existingUser);
+
     if (existingUser) {
       if (existingUser.deleted_at !== null) {
         // 기존에 등록된 사용자이면서 deleted_at이 null이 아닌(=탈퇴한) 사용자인지 확인
@@ -186,7 +186,7 @@ export class UserService {
   ): Promise<boolean> {
     // 해당 작업이 완료될 때까지 기다리고 완료된 후에 불리언 값을 반환
     const user = await this.findById(userId);
-    console.log(unregisterDto.password, user);
+
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }

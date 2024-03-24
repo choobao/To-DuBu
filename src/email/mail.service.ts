@@ -17,9 +17,7 @@ export class MailService {
         to: userEmail,
         ...bodyOption,
       })
-      .then((result) => {
-        console.log(result);
-      })
+      .then((result) => {})
       .catch((error) => {
         new ConflictException(error);
       });
@@ -35,9 +33,7 @@ export class MailService {
         to: userEmail,
         ...bodyOption,
       })
-      .then((result) => {
-        console.log(result);
-      })
+      .then((result) => {})
       .catch((error) => {
         new ConflictException(error);
       });

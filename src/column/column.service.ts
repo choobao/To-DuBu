@@ -61,8 +61,6 @@ export class ColumnService {
       xx = boardList[procedure - 2].procedure;
       yy = boardList[procedure - 1].procedure;
 
-      console.log(xx, yy);
-
       decimalProcedure = xx + Math.random();
       while (decimalProcedure > yy && decimalProcedure - yy > tolerance) {
         decimalProcedure -= 0.001;
@@ -150,7 +148,7 @@ export class ColumnService {
     const column = await this.columnRepository.findOne({
       where: { id: columnId },
     });
-    console.log('컬럼은 찾았음', column);
+
     if (!column) {
       throw new NotFoundException('해당하는 컬럼이 존재하지 않습니다.');
     }
@@ -160,8 +158,6 @@ export class ColumnService {
       select: ['id', 'procedure'],
     });
 
-    console.log(boards);
-
     if (!boards) {
       throw new NotFoundException('해당하는 보드가 존재하지 않습니다.');
     }
@@ -170,7 +166,6 @@ export class ColumnService {
 
     //컬럼 순서이동 => 해당 컬럼을 찾아서 procedure을 수정해서 업데이트 해준다
 
-    console.log('순서이동');
     const changePriority = await this.columnRepository.update(
       { id: column.id },
       { procedure: decimalProcedure },
