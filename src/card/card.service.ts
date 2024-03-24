@@ -12,6 +12,7 @@ import { CreateCardDto } from './dto/card.create.dto';
 import { LexoRank } from 'lexorank';
 import { UpdateCardDto } from './dto/card.update.dto';
 import { User } from 'src/user/entities/user.entity';
+import { ModifyWorkerDto } from './dto/card.modify.dto';
 
 @Injectable()
 export class CardService {
@@ -28,33 +29,35 @@ export class CardService {
     private readonly awsService: AwsService,
   ) {}
   // 카드 생성
-    async createCard(createCardDto: CreateCardDto) {
-      const columnExists = await this.columnRepository.findOneBy({ id: createCardDto.columnId });
+  async createCard(user: User, createCardDto: CreateCardDto) {
+    const columnExists = await this.columnRepository.findOneBy({ id: createCardDto.column_id });
 
-      if (!columnExists) {
-        throw new NotFoundException('카드를 추가하려는 컬럼이 존재하지 않습니다.');
-      }
-
-      let lexoRank;
-      const existingCard = await this.cardRepository.findOne({ where: { columns: {id: createCardDto.columnId} }, order: { lexo: "DESC" } })
-      if (existingCard && existingCard.lexo) {
-        lexoRank = LexoRank.parse(existingCard.lexo.toString()).genNext();
-      } else {
-        lexoRank = LexoRank.middle();
-      }
-    
-      const newCard: Card = this.cardRepository.create({
-        title: createCardDto.title,
-        description: createCardDto.description,
-        color: createCardDto.color,
-        dead_line: createCardDto.dead_line,
-        lexo: lexoRank.toString(),
-        columns: {id: createCardDto.columnId }
-      });
-    
-      const savedCard = await this.cardRepository.save(newCard);
-      return savedCard;
+    if (!columnExists) {
+      throw new NotFoundException('카드를 추가하려는 컬럼이 존재하지 않습니다.');
     }
+
+    let lexoRank;
+    const existingCard = await this.cardRepository.findOne({ where: { columns: {id: createCardDto.column_id} }, order: { lexo: "DESC" } })
+    if (existingCard && existingCard.lexo) {
+      lexoRank = LexoRank.parse(existingCard.lexo.toString()).genNext();
+    } else {
+      lexoRank = LexoRank.middle();
+    }
+  
+    const newCard: Card = this.cardRepository.create({
+      user: user.id,
+      title: createCardDto.title,
+      description: createCardDto.description,
+      color: createCardDto.color,
+      dead_line: createCardDto.dead_line,
+      lexo: lexoRank.toString(),
+      columns_id: createCardDto.column_id,
+    });
+  
+    const savedCard = await this.cardRepository.save(newCard);
+    return savedCard;
+  }
+
 
   // 카드 목록 보기
   async findAll() {
@@ -70,19 +73,28 @@ export class CardService {
       }
       return 0; // lexo 값이 없는 경우 정렬하지 않음
     })
-    .map((card) => ({
-      data: {
-        // column_id: card.columns.id,
-        id: card.id,
-        title: card.title,
-        description: card.description,
-        color: card.color,
-        dead_line: card.dead_line,
-        lexo: card.lexo.toString(),
-      },
-    }));
 
-    return sortedCards
+  // column_id 별로 카드 묶기
+  const newCards = sortedCards.reduce((acc, card) => {
+    // column_id를 키로 사용하여 그룹화
+    const key = card.columns_id;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push({
+      column_id: card.columns_id,
+      id: card.id,
+      user: card.user,
+      title: card.title,
+      description: card.description,
+      color: card.color,
+      dead_line: card.dead_line,
+      lexo: card.lexo.toString(),
+    });
+    return acc;
+  }, {});
+
+  return newCards;
   }
 
   // 카드 이동(lexoRank 변경)
@@ -120,6 +132,8 @@ export class CardService {
     }
     
     movingCard.lexo = newLexoRank;
+    movingCard.columns_id = targetCard.columns_id;
+
     await this.cardRepository.save(movingCard);
 
     const sortedCards = (await this.cardRepository.find())
@@ -131,7 +145,7 @@ export class CardService {
     })
     .map((card) => ({
       data: {
-        columns_id: { where: movingCard.columns.id},
+        columns_id: movingCard.columns_id,
         id: card.id,
         title: card.title,
         description: card.description,
@@ -140,8 +154,6 @@ export class CardService {
         lexo: card.lexo.toString(),
       },
     }));
-
-  return sortedCards;
   }
 
   // 카드 수정
@@ -152,16 +164,16 @@ export class CardService {
     file: Express.Multer.File
     ) {
 
-      //카드 작성자 확인
-      const cardUser = await this.cardRepository.findOne({
-        where: { boardMember: {user_id :  user.id} },
-      });
-  
-      if (!cardUser) {
-        throw new UnauthorizedException(
-          '카드 작업자만 카드를 수정할 수 있습니다.',
-        );
-      }
+    //카드 작성자 확인
+    const cardUser = await this.cardRepository.findOne({
+      where: { user: user.id },
+    });
+
+    if (!cardUser) {
+      throw new UnauthorizedException(
+        '카드 작업자만 수정할 수 있습니다.',
+      );
+    }
       
   const card = await this.cardRepository.findOne({
     where: { id: cardId },
@@ -210,18 +222,39 @@ export class CardService {
       throw new NotFoundException('해당하는 카드가 존재하지 않습니다.');
     }
 
-          //카드 작성자 확인
-          const cardUser = await this.cardRepository.findOne({
-            where: { boardMember: {user_id :  user.id} },
-          });
-      
-          if (!cardUser) {
-            throw new UnauthorizedException(
-              '카드 작업자만 카드를 삭제할 수 있습니다.',
-            );
-          }
+    //카드 작성자 확인
+    const cardUser = await this.cardRepository.findOne({
+      where: { user: user.id },
+    });
+
+    if (!cardUser) {
+      throw new UnauthorizedException(
+        '카드 작업자만 삭제할 수 있습니다.',
+      );
+    }
 
     const deleteCard = await this.cardRepository.delete({id: card.id})
+  }
+
+  // 작업자 변경
+  async modifyWorker(cardId: number, modifyWorkerDto: ModifyWorkerDto) {
+    console.log(modifyWorkerDto)
+    const card = await this.cardRepository.findOne({
+      where: {id: cardId},
+    })
+
+    if (!card) {
+      throw new NotFoundException('해당하는 카드가 존재하지 않습니다.');
+    }
+
+    card.user = modifyWorkerDto.user
+
+    const modifyCard = await this.cardRepository.save(
+      { 
+        ...card,
+        user: card.user 
+      }
+    )
   }
 
   //카드 상세 조회
@@ -231,3 +264,116 @@ export class CardService {
     });
   }
 }
+
+// constructor(
+//   @InjectRepository(Columns)
+//   private readonly columnRepository: Repository<Columns>,
+//   @InjectRepository(Board)
+//   private readonly boardRepository: Repository<Board>,
+//   @InjectRepository(BoardMember)
+//   private readonly boardMemberRepository: Repository<BoardMember>,
+//   @InjectRepository(Card)
+//   private readonly cardRepository: Repository<Card>,
+//   private readonly utilsService: UtilsService,
+//   private readonly awsService: AwsService,
+// ) {}
+
+// //코드 합친 후 카드생성api에 이미지 입력코드 꼭 넣기!!!!!
+
+// //카드 이미지 입력(수정)
+// async insertMutiformForCard(cardId: number, file: Express.Multer.File) {
+//   const card = await this.cardRepository.findOne({
+//     where: { id: cardId },
+//   });
+
+//   if (!card) {
+//     throw new NotFoundException('해당하는 카드가 존재하지 않습니다.');
+//   }
+
+//   //이미 입력된 이미지가 있다면 S3에서 기존 이미지 삭제
+//   if (card.image !== null) {
+//     await this.awsService.DeleteUploadToS3(card.image);
+//   }
+
+//   //S3에 이미지 업로드, url return
+//   const imageName = this.utilsService.getUUID();
+//   const ext = file.originalname.split('.').pop();
+
+//   const imageUrl = await this.awsService.imageUploadToS3(
+//     `${imageName}.${ext}`,
+//     file,
+//     ext,
+//   );
+
+//   //DB에 저장
+//   const uploadCardDB = await this.cardRepository.update(
+//     { id: card.id },
+//     { image: `${imageName}.${ext}` },
+//   );
+
+//   return { imageUrl };
+// }
+
+// import { Injectable, NotFoundException } from '@nestjs/common';
+// import { InjectRepository } from '@nestjs/typeorm';
+// import { Board } from 'src/board/entity/board.entity';
+// import { BoardMember } from 'src/board/entity/boardmembers.entity';
+// import { Columns } from 'src/column/entities/column.entity';
+// import { Repository } from 'typeorm';
+// import { Card } from './entitis/card.entity';
+// import { UtilsService } from 'utils/utils.service';
+// // import { AwsService } from 'src/aws/aws.service';
+// import { NotFoundError } from 'rxjs';
+
+// @Injectable()
+// export class CardService {
+//   constructor(
+//     @InjectRepository(Columns)
+//     private readonly columnRepository: Repository<Columns>,
+//     @InjectRepository(Board)
+//     private readonly boardRepository: Repository<Board>,
+//     @InjectRepository(BoardMember)
+//     private readonly boardMemberRepository: Repository<BoardMember>,
+//     @InjectRepository(Card)
+//     private readonly cardRepository: Repository<Card>,
+//     private readonly utilsService: UtilsService,
+//     // private readonly awsService: AwsService,
+//   ) {}
+
+//   //코드 합친 후 카드생성api에 이미지 입력코드 꼭 넣기!!!!!
+
+//   //카드 이미지 입력(수정)
+//   async insertMutiformForCard(cardId: number, file: Express.Multer.File) {
+//     const card = await this.cardRepository.findOne({
+//       where: { id: cardId },
+//     });
+
+//     if (!card) {
+//       throw new NotFoundException('해당하는 카드가 존재하지 않습니다.');
+//     }
+
+//     //이미 입력된 이미지가 있다면 S3에서 기존 이미지 삭제
+//     if (card.image !== null) {
+//       // await this.awsService.DeleteUploadToS3(card.image);
+//     }
+
+//     //S3에 이미지 업로드, url return
+//     const imageName = this.utilsService.getUUID();
+//     const ext = file.originalname.split('.').pop();
+
+//     // const imageUrl = await this.awsService.imageUploadToS3(
+//     //   `${imageName}.${ext}`,
+//     //   file,
+//     //   ext,
+//     // );
+
+//     //DB에 저장
+//     const uploadCardDB = await this.cardRepository.update(
+//       { id: card.id },
+//       { image: `${imageName}.${ext}` },
+//     );
+
+//     // return { imageUrl };
+//   }
+
+// }
