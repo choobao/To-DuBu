@@ -17,7 +17,7 @@ import { JwtModule } from '@nestjs/jwt';
           },
         },
         defaults: {
-          from: '"nest-modules" <modules@nestjs.com>',
+          from: '"todubu" <modules@nestjs.com>',
         },
       }),
       inject: [ConfigService],
